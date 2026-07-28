@@ -1,3 +1,11 @@
+---
+title: EU AI Act Enforcement Starts August 2. Who's Governing Your Agents?
+published: false
+description: The EU AI Act's high-risk provisions activate today. They weren't written for autonomous AI agents. But your agents are subject to them anyway. Here's what you need to know, what you need to prove, and how credential-brokered enforcement bridges the governance gap.
+tags: ai, security, standards, devops
+cover_image: https://images.unsplash.com/photo-1585829365295-ab7cd400c167?w=1200&h=630&fit=crop
+---
+
 # EU AI Act Enforcement Starts August 2. Who's Governing Your Agents?
 
 **By Empire Labs Security Division**
@@ -145,7 +153,7 @@ Ask your vendor: *Where are your agents' credentials right now?*
 
 ---
 
-*Empire Labs builds open standards for autonomous agent governance. WitnessOS is the credential-brokered enforcement gateway that enforces them. Built for the NSA guidance. Ready for the EU AI Act.*
+*Empire Labs builds open standards for autonomous agent governance. Our compliance pack maps these standards to regulatory frameworks — NSA, EU AI Act, NIST, and Singapore AI Verify.*
 
 ---
 

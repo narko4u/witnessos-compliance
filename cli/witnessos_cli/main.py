@@ -1,6 +1,6 @@
 """WitnessOS Compliance CLI — generate regulatory compliance reports."""
 
-import os, json, yaml, datetime
+import os, json, yaml, datetime, urllib.request, urllib.error
 from pathlib import Path
 
 import click
@@ -282,10 +282,15 @@ def cli():
               help="Evidence grade to generate")
 @click.option("--output", "-o", type=click.Choice(["text", "json", "md"]), default="text",
               help="Output format")
+@click.option("--gateway", "-g", help="WitnessOS gateway URL (e.g., http://localhost:8100). Query live evidence.")
 @click.option("--from", "from_date", help="Start date (YYYY-MM-DD)")
 @click.option("--to", "to_date", help="End date (YYYY-MM-DD)")
-def report(standard, article, evidence, output, from_date, to_date):
+def report(standard, article, evidence, output, gateway, from_date, to_date):
     """Generate a compliance report for the specified standard."""
+
+    if gateway:
+        _fetch_gateway_report(standard, gateway, output)
+        return
 
     if standard == "nsa-mcp":
         _generate_nsa_report(output)
@@ -369,6 +374,114 @@ def list():
     console.print(f"\n📝 [bold]Content[/bold] — {len(blog_posts)} asset(s) ready")
     for post in blog_posts:
         console.print(f"   • {post.name}")
+
+
+# ── Gateway Integration ────────────────────────────────────────────
+
+
+def _fetch_gateway_report(standard: str, gateway_url: str, output: str):
+    """Fetch live evidence from a WitnessOS gateway and print a compliance report."""
+    try:
+        url = f"{gateway_url.rstrip('/')}/v1/evidence"
+        resp = urllib.request.urlopen(url, timeout=10)
+        data = json.loads(resp.read().decode())
+    except urllib.error.URLError as e:
+        console.print(f"[red]✗ Cannot reach gateway at {gateway_url}[/red]")
+        console.print(f"  Reason: {e.reason}")
+        return
+    except Exception as e:
+        console.print(f"[red]✗ Gateway error: {e}[/red]")
+        return
+
+    if output == "json":
+        console.print(json.dumps(data, indent=2))
+        return
+
+    cases = data.get("cases", [])
+    console.print(Panel.fit(f"[bold]WitnessOS Gateway — Live Evidence ({standard})[/bold]"))
+    console.print(f"Gateway: {gateway_url}")
+    console.print(f"Cases: {len(cases)}")
+    console.print(f"Generated: {datetime.datetime.now(datetime.timezone.utc).isoformat()}Z\n")
+
+    if not cases:
+        console.print("[yellow]No evidence cases found on gateway.[/yellow]")
+        console.print("The gateway may be empty or freshly started.")
+        console.print("Run agent operations first to generate evidence.")
+        return
+
+    for case in cases:
+        grade = case.get("evidence_grade", "?")
+        status = case.get("evidence_status", "?")
+        console.print(f"• Case: {case['case_id']}")
+        console.print(f"  Events: {case['event_count']} | Evidence: {grade} | Status: {status}")
+        console.print(f"  Agent: {case.get('agent_id', '?')}")
+        console.print()
+
+    if output == "md":
+        md = f"# WitnessOS Gateway — Live Evidence\n\n"
+        md += f"**Gateway:** {gateway_url}\n\n"
+        md += f"**Cases:** {len(cases)}\n\n"
+        md += "| Case ID | Events | Evidence | Status |\n"
+        md += "|---------|--------|----------|--------|\n"
+        for case in cases:
+            md += f"| {case['case_id']} | {case['event_count']} | {case.get('evidence_grade', '?')} | {case.get('evidence_status', '?')} |\n"
+        path = REPO_ROOT / "content" / "gateway-evidence-report.md"
+        path.write_text(md)
+        console.print(f"\n[green]✓[/green] Report saved to: {path}")
+
+
+@cli.command()
+@click.option("--gateway", "-g", default="http://localhost:8100", help="WitnessOS gateway URL")
+@click.option("--case", "-c", help="Specific case ID to inspect")
+@click.option("--output", "-o", type=click.Choice(["text", "json", "md"]), default="text")
+def evidence(gateway, case, output):
+    """Query live compliance evidence from a WitnessOS gateway."""
+    if case:
+        try:
+            url = f"{gateway.rstrip('/')}/v1/evidence/{case}"
+            resp = urllib.request.urlopen(url, timeout=10)
+            data = json.loads(resp.read().decode())
+        except urllib.error.HTTPError as e:
+            console.print(f"[red]✗ Case not found: {case} at {gateway}[/red]")
+            return
+        except Exception as e:
+            console.print(f"[red]✗ Gateway error: {e}[/red]")
+            return
+
+        if output == "json":
+            console.print(json.dumps(data, indent=2))
+            return
+
+        console.print(Panel.fit(f"[bold]Evidence Case: {case}[/bold]"))
+        console.print(f"Events: {data.get('event_count', 0)}")
+        console.print(f"Grade: [green]{data.get('evidence_grade', '?')}[/green] | Status: {data.get('evidence_status', '?')}")
+        console.print()
+        console.print("[bold]Action:[/bold]")
+        act = data.get("action", {})
+        console.print(f"  System: {act.get('target_system', '?')}")
+        console.print(f"  Resource: {act.get('target_resource', '?')}")
+        console.print(f"  Risk Class: {act.get('risk_class', '?')}")
+        console.print(f"  Canonical Hash: {act.get('canonical_request_hash', '?')}")
+        console.print()
+        console.print("[bold]Policy Decision:[/bold]")
+        pol = data.get("policy", {})
+        console.print(f"  Decision: {pol.get('decision', '?')}")
+        console.print(f"  Rule ID: {pol.get('rule_id', '?')}")
+        console.print(f"  Bundle Hash: {pol.get('policy_bundle_hash', '?')}")
+        console.print()
+        console.print("[bold]Outcome:[/bold]")
+        out = data.get("outcome", {})
+        console.print(f"  Stage: {out.get('stage', '?')}")
+        console.print(f"  Provider Op ID: {out.get('provider_operation_id', '?')}")
+        console.print(f"  Independently Verifiable: {out.get('independently_verifiable', False)}")
+        console.print()
+        console.print("[bold]Chain Integrity:[/bold]")
+        ch = data.get("chain", {})
+        console.print(f"  Head Hash: {ch.get('head_commitment_hash', '?')}")
+        console.print(f"  Event Count: {ch.get('event_count', 0)}")
+        console.print(f"  Signature: {ch.get('signature', '?')}")
+    else:
+        _fetch_gateway_report("all", gateway, output)
 
 
 if __name__ == "__main__":
