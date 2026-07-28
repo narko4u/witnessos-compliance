@@ -1,0 +1,394 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>WitnessOS — Interactive Demo</title>
+<style>
+:root {
+  --bg: #0a0a0f;
+  --surface: #111118;
+  --border: #1e1e2a;
+  --text: #e0e0e8;
+  --muted: #6b6b7b;
+  --accent: #00d4aa;
+  --warn: #f59e0b;
+  --danger: #ef4444;
+  --blue: #3b82f6;
+  --purple: #8b5cf6;
+  --radius: 6px;
+  --font: 'SF Mono', 'Cascadia Code', 'Fira Code', monospace;
+}
+* { margin:0; padding:0; box-sizing:border-box; }
+body {
+  font-family: var(--font);
+  background: var(--bg);
+  color: var(--text);
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 2rem 1rem;
+}
+header {
+  text-align: center;
+  margin-bottom: 2rem;
+}
+header h1 {
+  font-size: 1.8rem;
+  font-weight: 700;
+  letter-spacing: -0.02em;
+}
+header h1 span { color: var(--accent); }
+header p {
+  color: var(--muted);
+  margin-top: 0.5rem;
+  font-size: 0.9rem;
+}
+.container {
+  width: 100%;
+  max-width: 900px;
+}
+/* Flow steps */
+.flow {
+  display: flex;
+  gap: 1.5rem;
+  flex-wrap: wrap;
+  justify-content: center;
+  margin-bottom: 2rem;
+}
+.step {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 1.2rem 1rem;
+  width: 140px;
+  text-align: center;
+  cursor: pointer;
+  transition: border-color 0.2s, transform 0.15s;
+  position: relative;
+}
+.step:hover { border-color: var(--accent); transform: translateY(-1px); }
+.step.active {
+  border-color: var(--accent);
+  box-shadow: 0 0 16px rgba(0,212,170,0.15);
+}
+.step.completed {
+  border-color: var(--accent);
+  opacity: 0.85;
+}
+.step-icon {
+  font-size: 1.6rem;
+  margin-bottom: 0.5rem;
+}
+.step-label {
+  font-size: 0.75rem;
+  color: var(--muted);
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+}
+.step-title {
+  font-size: 0.85rem;
+  font-weight: 600;
+  margin-top: 0.15rem;
+}
+.step .check {
+  position: absolute;
+  top: 6px;
+  right: 8px;
+  color: var(--accent);
+  font-size: 0.7rem;
+  display: none;
+}
+.step.completed .check { display: block; }
+
+/* Console panel */
+.console {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 1.5rem;
+  min-height: 300px;
+  margin-bottom: 1.5rem;
+  font-size: 0.82rem;
+  line-height: 1.7;
+  overflow-y: auto;
+  max-height: 400px;
+}
+.console .line {
+  padding: 0.15rem 0;
+  opacity: 0;
+  animation: fadeIn 0.3s ease forwards;
+}
+@keyframes fadeIn { to { opacity:1; } }
+.console .line:nth-child(1) { animation-delay: 0s; }
+.console .line:nth-child(2) { animation-delay: 0.1s; }
+.console .line:nth-child(3) { animation-delay: 0.2s; }
+.console .line:nth-child(4) { animation-delay: 0.3s; }
+.console .line:nth-child(5) { animation-delay: 0.4s; }
+.console .timestamp { color: var(--muted); }
+.console .agent { color: var(--blue); }
+.console .gateway { color: var(--accent); }
+.console .policy { color: var(--warn); }
+.console .receipt { color: var(--purple); }
+.console .approval { color: var(--danger); }
+.console .success { color: var(--accent); }
+.console .hash { color: var(--muted); font-size: 0.75rem; }
+
+.actions {
+  display: flex;
+  gap: 1rem;
+  justify-content: center;
+  flex-wrap: wrap;
+}
+button {
+  font-family: var(--font);
+  font-size: 0.82rem;
+  padding: 0.7rem 1.4rem;
+  border-radius: var(--radius);
+  border: 1px solid var(--border);
+  background: var(--surface);
+  color: var(--text);
+  cursor: pointer;
+  transition: border-color 0.2s, background 0.2s;
+}
+button:hover { border-color: var(--accent); background: #1a1a24; }
+button.primary {
+  background: var(--accent);
+  color: #000;
+  border-color: var(--accent);
+  font-weight: 600;
+}
+button.primary:hover { background: #00e6b8; }
+button.danger { border-color: var(--danger); color: var(--danger); }
+button.danger:hover { background: #1f1111; }
+button:disabled { opacity: 0.3; cursor: not-allowed; }
+
+.receipt-box {
+  background: var(--surface);
+  border: 1px solid var(--purple);
+  border-radius: var(--radius);
+  padding: 1rem;
+  margin-top: 1.5rem;
+  display: none;
+}
+.receipt-box.show { display: block; }
+.receipt-box h3 {
+  color: var(--purple);
+  font-size: 0.9rem;
+  margin-bottom: 0.75rem;
+}
+.receipt-box .field {
+  display: flex;
+  justify-content: space-between;
+  padding: 0.3rem 0;
+  border-bottom: 1px solid var(--border);
+  font-size: 0.78rem;
+}
+.receipt-box .field:last-child { border: none; }
+.receipt-box .label { color: var(--muted); }
+.receipt-box .value { font-family: var(--font); word-break: break-all; }
+</style>
+</head>
+<body>
+
+<header>
+  <h1><span>◆</span> WitnessOS</h1>
+  <p>Credential-Brokered Enforcement Gateway — Interactive Demo</p>
+</header>
+
+<div class="container">
+
+  <div class="flow" id="flow">
+    <div class="step" data-step="1">
+      <span class="check">✓</span>
+      <div class="step-icon">🤖</div>
+      <div class="step-label">Step 1</div>
+      <div class="step-title">Agent Fire</div>
+    </div>
+    <div class="step" data-step="2">
+      <span class="check">✓</span>
+      <div class="step-icon">🔐</div>
+      <div class="step-label">Step 2</div>
+      <div class="step-title">Identity Check</div>
+    </div>
+    <div class="step" data-step="3">
+      <span class="check">✓</span>
+      <div class="step-icon">⚖️</div>
+      <div class="step-label">Step 3</div>
+      <div class="step-title">Policy Evaluate</div>
+    </div>
+    <div class="step" data-step="4">
+      <span class="check">✓</span>
+      <div class="step-icon">✋</div>
+      <div class="step-label">Step 4</div>
+      <div class="step-title">Approval</div>
+    </div>
+    <div class="step" data-step="5">
+      <span class="check">✓</span>
+      <div class="step-icon">📜</div>
+      <div class="step-label">Step 5</div>
+      <div class="step-title">Evidence</div>
+    </div>
+  </div>
+
+  <div class="console" id="console">
+    <div class="line"><span class="timestamp">[2026-08-02 14:03:01.021]</span> <span class="agent">AGENT sovereign-agent-c7</span> → Gateway: fire_action(send_email, recipient=partner@acme.com)</div>
+  </div>
+
+  <div class="actions" id="actions">
+    <button id="btn-demo" class="primary" onclick="runDemo()">▶ Run Full Demo</button>
+    <button id="btn-step" onclick="stepDemo()">⏭ Next Step</button>
+    <button id="btn-reset" class="danger" onclick="resetDemo()">↺ Reset</button>
+  </div>
+
+  <div class="receipt-box" id="receipt">
+    <h3>📜 E3 Receipt — Approval-Bound Action</h3>
+    <div class="field"><span class="label">Receipt ID</span><span class="value" id="r-id">—</span></div>
+    <div class="field"><span class="label">Action Hash</span><span class="value hash" id="r-hash">—</span></div>
+    <div class="field"><span class="label">Policy Decision</span><span class="value" id="r-policy">—</span></div>
+    <div class="field"><span class="label">Approval Bound</span><span class="value" id="r-approval">—</span></div>
+    <div class="field"><span class="label">Evidence Grade</span><span class="value" id="r-grade">—</span></div>
+    <div class="field"><span class="label">Merkle Checkpoint</span><span class="value hash" id="r-merkle">—</span></div>
+  </div>
+
+</div>
+
+<script>
+const steps = [
+  {
+    title: "Agent Fires Action",
+    output: [
+      '<span class="timestamp">[2026-08-02 14:03:01.021]</span> <span class="agent">AGENT sovereign-agent-c7</span> → Gateway: mTLS handshake established',
+      '<span class="timestamp">[2026-08-02 14:03:01.089]</span> <span class="agent">AGENT sovereign-agent-c7</span> → <span class="gateway">GATEWAY</span>: action=send_email {to: "external@acme.com", subject: "Q3 Invoice Attached", attachments: ["invoice-q3.pdf"]}',
+      '<span class="timestamp">[2026-08-02 14:03:01.091]</span> <span class="agent">AGENT</span> requests credential grant for destination: Gmail (send scope)',
+    ]
+  },
+  {
+    id: "Identity Check",
+    output: [
+      '<span class="timestamp">[2026-08-02 14:03:01.093]</span> <span class="gateway">GATEWAY</span> → Identity Broker: Verify SPIFFE ID spiffe://empire-labs.com/agent/sovereign-c7',
+      '<span class="timestamp">[2026-08-02 14:03:01.112]</span> <span class="gateway">GATEWAY</span> ← Identity Broker: ✅ Identity verified. Role: operator-tier-2. Valid until 2026-08-03T14:00:00Z.',
+      '<span class="timestamp">[2026-08-02 14:03:01.114]</span> <span class="gateway">GATEWAY</span> → RBAC check: role operator-tier-2 CAN fire send_email (per policy). ⚠️ external_email requires APPROVAL.',
+    ]
+  },
+  {
+    id: "Policy Evaluate",
+    output: [
+      '<span class="timestamp">[2026-08-02 14:03:01.120]</span> <span class="gateway">GATEWAY</span> → Policy Engine: evaluate(signed-policy-bundle v3.2.1, action=send_email, recipient=external@acme.com)',
+      '<span class="timestamp">[2026-08-02 14:03:01.134]</span> <span class="policy">POLICY ENGINE</span> — Rule matched: external_email → risk_class=HIGH → requires APPROVAL',
+      '<span class="timestamp">[2026-08-02 14:03:01.136]</span> <span class="gateway">GATEWAY</span> → Approval Queue: Pending. Offering to operator for review.',
+      ''
+    ]
+  },
+  {
+    id: "Approval Binding",
+    output: [
+      '<span class="timestamp">[2026-08-02 14:04:12.441]</span> <span class="gateway">GATEWAY</span> → Approval UI: Operator presented with action detail',
+      '<span class="timestamp">[2026-08-02 14:04:12.442]</span> <span class="gateway">GATEWAY</span> → Operator shows: send_email to external@acme.com, subject "Q7 Invoice Attached", 1 attachment (invoice-q3.pdf, 256KB)',
+      '<span class="timestamp">[2026-08-02 14:04:31.005]</span> <span class="approval">APPROVED</span> by operator eddie@empire-labs.com (SHA-256 hash binding of exact action content)',
+      '<span class="timestamp">[2026-08-02 14:04:31.007]</span> <span class="gateway">GATEWAY</span> → Credential Broker: Token for Gmail.send scope granted (TTL 60s, one-time usage)',
+      '<span class="timestamp">[2026-08-02 14:04:31.452]</span> <span class="success">✓ ACTION EXECUTED</span> → Gmail confirms sent: Message ID <20260802-140331-gw-c7@gw.witnessos.empire>',
+    ]
+  },
+  {
+    id: "Receipt Generated",
+    receipt: true,
+    output: [
+      '<span class="timestamp">[2026-08-02 14:04:31.500]</span> <span class="receipt">RECEIPT</span> — Evidence grade: E3 (approval-bound)',
+      '<span class="timestamp">[2026-08-02 14:04:31.502]</span> <span class="receipt">RECEIPT</span> → Hash chained to prior receipt: ri_20260802_140139 (Merkle checkpoint #42)',
+      '<span class="timestamp">[2026-08-02 14:04:31.503]</span> <span class="receipt">RECEIPT</span> → RFC 3161 TSA anchor: Freetsa.org @ 2026-08-02 14:04:31.512 UTC',
+      '<span class="timestamp">[2026-08-02 14:04:31.503]</span> <span class="receipt">RECEIPT</span> → Signed: Ed25519 by WitnessOS Gateway (key: gw_pk_7a3f)',
+      '<span class="timestamp">[2026-08-02 14:04:31.504]</span> <span class="success">✅ Full receipt chain verifiable by any third party. No trust required.</span>',
+    ]
+  },
+];
+
+let currentStep = 0;
+let allDone = false;
+
+function line(t) { return `<div class="line">${t}</div>`; }
+
+function updateFlow(step) {
+  document.querySelectorAll('.step').forEach((el, i) => {
+    el.classList.remove('active');
+    if (i < step) el.classList.add('completed');
+    if (i === step - 1 && step > 0 && step <= steps.length) el.classList.add('active');
+  });
+}
+
+function resetDemo() {
+  currentStep = 0;
+  allDone = [];
+  document.getElementById('console').innerHTML = line('<span class="timestamp">[2026-08-02 14:03:01.020]</span> <span class="success">◆ WITNESSOS DEMO RESET ◆</span>');
+  document.getElementById('receipt').classList.remove('show');
+  updateFlow(0);
+  document.getElementById('btn-demo').disabled = false;
+  document.getElementById('btn-step').disabled = false;
+}
+
+function stepDemo() {
+  if (currentStep >= steps.length) return;
+  const s = steps[currentStep];
+  const con = document.getElementById('console');
+  if (currentStep === 0) con.innerHTML = '';
+  for (const l of s.output) {
+    const div = document.createElement('div');
+    div.className = 'line';
+    div.innerHTML = l;
+    con.appendChild(div);
+  }
+  if (s.receipt) generateReceipt();
+  allDone.push(s.id);
+  updateFlow(currentStep + 1);
+  currentStep++;
+  con.scrollTop = con.scrollHeight;
+  if (currentStep >= steps.length) {
+    document.getElementById('btn-demo').disabled = true;
+    document.getElementById('btn-ste').disabled = true;
+  }
+}
+
+function runDemo() {
+  resetDemo();
+  document.getElementById('console').innerHTML = '';
+  let delay = 0;
+  for (let i = 0; i < steps.length; i++) {
+    ((i) => {
+      setTimeout(() => {
+        const s = steps[i];
+        const con = document.getElementById('console');
+        for (const l of s.output) {
+          const div = document.createElement('div');
+          div.className = 'line';
+          div.innerHTML = l;
+          con.appendChild(div);
+        }
+        if (s.receipt) generateReceipt(s);
+        updateFlow(i + 1);
+        con.scrollTop = con.scrollHeight;
+        if (i === steps.length - 1) {
+          document.getElementById('btn-demo').disabled = true;
+          document.getElementById('btn-step').disabled = true;
+          currentStep = steps.length;
+        }
+      }, delay);
+      delay += 600;
+    })(i);
+  }
+  currentStep = 0;
+}
+
+function generateReceipt(s) {
+  const box = document.getElementById('receipt');
+  box.classList.add('show');
+  document.getElementById('r-id').textContent = 'ri_2026-08-02_140431';
+  document.getElementById('r-hash').textContent = 'sha256:d4e2f8a01b3c7e91a65f402d83c9a2e1f0b7d86c92a4e5f3718a6b0c9d7e8f2a';
+  document.getElementById('r-policy').textContent = 'DENIED → AWAIT APPROVAL (operator eddie@empire-labs approved)';
+  document.getElementById('r-approval').textContent = 'Ed25519:eddie_pk...b4f signature valid ✓';
+  document.getElementById('r-grade').textContent = 'E3 — Approval-Bound';
+  document.getElementById('r-merkle').textContent = 'Checkpoint #42 → Root: ab3f...d79e (61 receipts)';
+}
+</script>
+</body>
+</html>

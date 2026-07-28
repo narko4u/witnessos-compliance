@@ -1,0 +1,175 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>WitnessOS Receipt Visualizer</title>
+<style>
+:root {
+  --bg: #0a0a0f;
+  --surface: #111118;
+  --border: #1e1e2a;
+  --text: #e0e0e8;
+  --muted: #6b6b7b;
+  --accent: #00d4aa;
+  --warn: #f59e0b;
+  --danger: #ef4444;
+  --purple: #8b5cf6;
+  --blue: #3b82f6;
+}
+* { margin:0; padding:0; box-sizing:border-box; }
+body {
+  font-family: 'SF Mono', 'Cascadia Code', monospace;
+  background: var(--bg);
+  color: var(--text);
+  min-height: 100vh;
+  padding: 2rem;
+}
+header {
+  text-align: center;
+  margin-bottom: 2rem;
+}
+header h1 { font-size: 1.5rem; }
+header h1 span { color: var(--accent); }
+.controls {
+  display: flex;
+  gap: 1rem;
+  justify-content: center;
+  margin-bottom: 2rem;
+  flex-wrap: wrap;
+}
+textarea {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  color: var(--text);
+  font-family: var(--font);
+  font-size: 0.78rem;
+  padding: 1rem;
+  border-radius: 6px;
+  width: 100%;
+  max-width: 700px;
+  min-height: 180px;
+  resize: vertical;
+}
+button {
+  font-family: inherit;
+  font-size: 0.82rem;
+  padding: 0.7rem 1.4rem;
+  border-radius: 6px;
+  border: 1px solid var(--border);
+  background: var(--surface);
+  color: var(--text);
+  cursor: pointer;
+}
+button:hover { border-color: var(--accent); }
+button.primary { background: var(--accent); color: #000; border-color: var(--accent); font-weight: 600; }
+#viz {
+  display: flex;
+  justify-content: center;
+  margin-top: 2rem;
+}
+svg { max-width: 100%; }
+</style>
+</head>
+<body>
+
+<header>
+  <h1><span>📜</span> WitnessOS Receipt Visualizer</h1>
+  <p style="color: var(--muted); margin-top:0.5rem; font-size:0.85rem;">Paste a WitnessOS receipt JSON to visualize the evidence chain</p>
+</header>
+
+<div class="controls">
+  <textarea id="receipt-input" placeholder="Paste receipt JSON here...">{
+  "receipt_id": "ri_2026-08-02_140431",
+  "timestamp": "2026-08-02T14:04:31.500Z",
+  "evidence_grade": "E3",
+  "agent": "sovereign-agent-c7",
+  "action": "send_email",
+  "destination": "Gmail",
+  "policy_decision": "approved",
+  "approval": {
+    "operator": "eddie@empire-labs.com",
+    "signature": "Ed25519:eddie_pk...b4f",
+    "action_hash": "sha256:d4e2f8a0..."
+  },
+  "merkle": {
+    "checkpoint": 42,
+    "root": "ab3fd79e...",
+    "total_receipts": 61
+  },
+  "tsa_anchor": {
+    "provider": "freetsa.org",
+    "timestamp": "2026-08-02T14:04:31.512Z"
+  },
+  "gateway_signature": "Ed25519:gw_pk_7a3f...",
+  "previous_receipt": "ri_2026-08-02_140139",
+  "status": "verifiable"
+}</textarea>
+  <button class="primary" onclick="renderReceipt()">🔍 Visualize Receipt</button>
+</div>
+
+<div id="viz"></div>
+
+<script>
+function renderReceipt(receipt) {
+  try {
+    const r = typeof receipt === 'string' ? JSON.parse(receipt) : receipt;
+    return buildSVG(r);
+  } catch(e) {
+    return `<div style="color:var(--danger);text-align:center;padding:2rem;">Error parsing receipt: ${e.message}</div>`;
+  }
+}
+
+function render() {
+  document.getElementById('viz').innerHTML = renderReceipt(document.getElementById('receipt-input').value);
+}
+render();
+
+function buildSVG(r) {
+  const w = 800, baseY = 30, rowH = 42, boxH = 34;
+  const rows = [];
+  const addRow = (label, value, color) => rows.push({label, value, color});
+
+  rows.push(
+"", "", "", "", "", "", "", "", ""
+  );
+  const lines = []; const y0 = baseY + 20;
+  lines.push(`<line x1="55" y1="${y0}" x2="55" y2="${y0 + rows.length * rowH}" stroke="#2a2a3a" stroke-width="2"/>`);
+  const items = [];
+  rows.forEach((row, i) => {
+    const y = baseY + i * rowH;
+    items.push(`<circle cx="55" cy="${y}" r="5" fill="${row.color}" stroke="${row.color}" stroke-width="1"/>`);
+    items.push(`<text x="75" y="${y + 5}" fill="var(--muted)" font-size="11" font-family="inherit">${row.label}</text>`);
+    items.push(`<text x="210" y="${y + 5}" fill="${row.color}" font-size="11" font-family="inherit">${row.value}</text>`);
+  });
+
+  const bh = baseY + rows.length * rowH;
+  const chainY = bib + 60;
+  lines.push(`<rect x="40" y="${bib}" width="500" height="90" rx="6" fill="none" stroke="var(--purple)" stroke-width="1.5" stroke-dasharray="4 3"/>`);
+  items.push(`<text x="60" y="${bib + 24}" fill="var(--purple)" font-size="10" font-family="inherit">MERKLE CHECKPOINT #${r.merkle?.checkpoint || '?'} — Root: ${r.merkle?.root || 'unknown'}</text>`);
+  items.push(`<text x="60" y="${bib + 48}" fill="var(--muted)" font-size="9" font-family="inherit">${r.merkle?.total_receipts || '?'} receipts in checkpoint • Previous: ${r.previous_receipt || 'genesis'}</text>`);
+  items.push(`<text x="60" y="${bib + 68}" fill="var(--muted)" font-size="9" font-family="inherit">RFC 3161 TSA: ${r.tsa_anchor?.provider || 'none'} @ ${r.tsa_anchor?.timestamp || '—'}</text>`);
+
+  const th = chainY + 110;
+  const fp = 380;
+  items.push(`<rect x="${fp}" y="${baseY - 30}" width="170" height="${th - baseY}" rx="8" fill="none" stroke="var(--accent)" stroke-width="2"/>`);
+  items.push(`<text x="${fp + 10}" y="${baseY - 8}" fill="var(--accent)" font-size="11" font-family="inherit" font-weight="600">EVIDENCE GRADE</text>`);
+  items.push(`<text x="${fp + 10}" y="${baseY + 28}" fill="var(--accent)" font-size="32" font-family="inherit" font-weight="700">${r.evidence_grade}</text>`);
+  items.push(`<text x="${fp + 10}" y="${baseY + 54}" fill="var(--muted)" font-size="9" font-family="inherit">STATUS: ${r.status || 'verifiable'} ✓</text>`);
+  items.push(`<text x="${fp + 10}" y="${baseY + 78}" fill="var(--muted)" font-size="9" font-family="inherit">Any third party can verify.</text>`);
+
+  const footerY = th + 30;
+  items.push(`<text x="60" y="${footerY}" fill="var(--muted)" font-size="9" font-family="inherit">Gateway Signature: ${r.gateway_signature || 'none'} — Source: /evidence/2026/08/${r.receipt_id}.json</text>`);
+  items.push(`<text x="60" y="${footerY + 16}" fill="var(--muted)" font-size="9" font-family="inherit">witnessos-      ⏎\ver compliance proof receipt — no operator trust required</text>`);
+
+  const totalH = footerY + 40;
+  return `<svg width="${w}" height="${totalH}" xmlns="http://www.w3.org/2000/svg" style="background:var(--surface);border-radius:8px;border:1px solid var(--border);margin:0 auto;">
+    <text x="20" y="30" fill="var(--text)" font-size="14" font-family="inherit" font-weight="600">WitnessOS evidence Receipt — ${r.receipt_id}</text>
+    <text x="20" y="52" fill="var(--muted)" font-size="10" font-family="inherit">${r.timestamp} | Agent: ${r.agent}</text>
+    <line x1="20" y1="64" x2="${w-20}" y2="64" stroke="var(--border)" stroke-width="1"/>
+    ${items.join('\n    ')}
+  </svg>`;
+}
+</script>
+</body>
+</html>
