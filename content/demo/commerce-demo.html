@@ -1,0 +1,511 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Agent-to-Agent Commerce — ACI + AIP + WitnessOS</title>
+<style>
+:root {
+  --bg: #0a0a0f;
+  --surface: #111118;
+  --border: #1e1e2a;
+  --text: #e0e0e8;
+  --muted: #6b6b7b;
+  --accent: #00d4aa;
+  --warn: #f59e0b;
+  --danger: #ef4444;
+  --blue: #3b82f6;
+  --purple: #8b5cf6;
+  --radius: 6px;
+  --font: 'SF Mono', 'Cascadia Code', 'Fira Code', monospace;
+}
+* { margin:0; padding:0; box-sizing:border-box; }
+body {
+  font-family: var(--font);
+  background: var(--bg);
+  color: var(--text);
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 2rem 1rem;
+}
+header {
+  text-align: center;
+  margin-bottom: 2rem;
+}
+header h1 {
+  font-size: 1.6rem;
+  font-weight: 700;
+}
+header h1 span { color: var(--accent); }
+.badges {
+  display: flex;
+  gap: 0.75rem;
+  justify-content: center;
+  margin: 0.75rem 0;
+  flex-wrap: wrap;
+}
+.badge {
+  padding: 0.25rem 0.75rem;
+  border-radius: 999px;
+  font-size: 0.7rem;
+  font-weight: 600;
+  letter-spacing: 0.05em;
+}
+.badge.aci { background: rgba(59,130,246,0.15); color: var(--blue); border: 1px solid var(--blue); }
+.badge.aip { background: rgba(139,92,246,0.15); color: var(--purple); border: 1px solid var(--purple); }
+.badge.witness { background: rgba(0,212,170,0.15); color: var(--accent); border: 1px solid var(--accent); }
+
+.container {
+  width: 100%;
+  max-width: 960px;
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+}
+
+/* Agent cards */
+.agents-row {
+  display: grid;
+  grid-template-columns: 1fr 60px 1fr;
+  gap: 0.75rem;
+  align-items: start;
+}
+.agent-card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 1.25rem;
+}
+.agent-card .name {
+  font-size: 1.1rem;
+  font-weight: 700;
+  margin-bottom: 0.35rem;
+}
+.agent-card .role {
+  font-size: 0.75rem;
+  color: var(--muted);
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  margin-bottom: 0.75rem;
+}
+.agent-card .cap {
+  font-size: 0.78rem;
+  color: var(--text);
+  padding: 0.25rem 0;
+  opacity: 0.85;
+}
+.agent-card .cap::before { content: "▸ "; color: var(--accent); }
+.vs-col {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 100%;
+  min-height: 120px;
+}
+.vs {
+  font-size: 2.5rem;
+  font-weight: 900;
+  color: var(--border);
+}
+.manifest-box {
+  background: var(--bg);
+  border: 1px solid var(--border);
+  border-radius: 4px;
+  padding: 0.75rem;
+  margin-top: 0.75rem;
+  font-size: 0.7rem;
+  line-height: 1.5;
+  color: var(--muted);
+  max-height: 140px;
+  overflow-y: auto;
+  white-space: pre-wrap;
+  font-family: var(--font);
+}
+
+/* Flow diagram */
+.flow {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 1.5rem;
+}
+.flow-title {
+  font-size: 0.9rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  margin-bottom: 1rem;
+  color: var(--accent);
+}
+.steps {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  position: relative;
+}
+.step {
+  text-align: center;
+  flex: 1;
+  position: relative;
+  z-index: 1;
+}
+.step::after {
+  content: "";
+  position: absolute;
+  top: 18px;
+  left: 55%;
+  right: -45%;
+  height: 2px;
+  background: var(--border);
+  z-index: 0;
+}
+.step:last-child::after { display: none; }
+.step-num {
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  background: var(--surface);
+  border: 2px solid var(--border);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: 0 auto 0.5rem;
+  font-weight: 700;
+  font-size: 0.85rem;
+  position: relative;
+  z-index: 1;
+  transition: all 0.3s;
+}
+.step.done .step-num {
+  background: rgba(0,212,170,0.15);
+  border-color: var(--accent);
+  color: var(--accent);
+}
+.step.active .step-num {
+  background: var(--accent);
+  border-color: var(--accent);
+  color: var(--bg);
+  animation: pulse 1s infinite;
+}
+.step.fail .step-num {
+  background: rgba(239,68,68,0.15);
+  border-color: var(--danger);
+  color: var(--danger);
+}
+@keyframes pulse {
+  0%, 100% { box-shadow: 0 0 0 0 rgba(0,212,170,0.4); }
+  50% { box-shadow: 0 0 0 8px rgba(0,212,170,0); }
+}
+.step-label {
+  font-size: 0.65rem;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--muted);
+}
+.step.done .step-label { color: var(--accent); }
+.step.active .step-label { color: var(--accent); font-weight: 700; }
+
+/* Gateway log */
+.gateway-log {
+  background: var(--bg);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 1rem;
+  font-family: var(--font);
+  font-size: 0.78rem;
+  line-height: 1.6;
+  max-height: 220px;
+  overflow-y: auto;
+}
+.gateway-log .line { opacity: 0; animation: fadeIn 0.3s forwards; }
+.gateway-log .line.info { color: var(--blue); }
+.gateway-log .line.ok { color: var(--accent); }
+.gateway-log .line.warn { color: var(--warn); }
+.gateway-log .line.err { color: var(--danger); }
+@keyframes fadeIn { to { opacity: 1; } }
+
+/* Controls */
+.controls {
+  display: flex;
+  gap: 0.75rem;
+  justify-content: center;
+  flex-wrap: wrap;
+}
+button {
+  font-family: var(--font);
+  padding: 0.6rem 1.5rem;
+  border-radius: var(--radius);
+  border: 1px solid var(--border);
+  cursor: pointer;
+  font-size: 0.85rem;
+  font-weight: 600;
+  transition: all 0.2s;
+  background: var(--surface);
+  color: var(--text);
+}
+button:hover { border-color: var(--accent); }
+button.primary {
+  background: var(--accent);
+  color: var(--bg);
+  border-color: var(--accent);
+}
+button.primary:hover { opacity: 0.9; }
+button:disabled { opacity: 0.3; cursor: not-allowed; }
+
+/* Receipt panel */
+.receipt {
+  background: var(--surface);
+  border: 2px solid var(--accent);
+  border-radius: var(--radius);
+  padding: 1.25rem;
+  display: none;
+}
+.receipt.show { display: block; }
+.receipt-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 1rem;
+}
+.grade-badge {
+  padding: 0.25rem 0.75rem;
+  border-radius: 4px;
+  font-weight: 900;
+  font-size: 1.2rem;
+}
+.grade-badge.e4 { background: rgba(0,212,170,0.2); color: var(--accent); border: 1px solid var(--accent); }
+
+.merkle {
+  background: var(--bg);
+  border-radius: 4px;
+  padding: 0.5rem 0.75rem;
+  margin-top: 0.5rem;
+  font-size: 0.7rem;
+  color: var(--muted);
+  word-break: break-all;
+}
+
+footer {
+  margin-top: 2rem;
+  text-align: center;
+  font-size: 0.72rem;
+  color: var(--muted);
+}
+footer a { color: var(--accent); text-decoration: none; }
+</style>
+</head>
+<body>
+
+<header>
+  <h1>Agent-to-Agent <span>Commerce</span></h1>
+  <div class="badges">
+    <span class="badge aci">ACI DISCOVERY</span>
+    <span class="badge aip">AIP NEGOTIATION</span>
+    <span class="badge witness">GATEWAY ENFORCEMENT</span>
+  </div>
+</header>
+
+<div class="container">
+
+  <!-- Agent Cards -->
+  <div class="agents-row">
+    <div class="agent-card" id="buyer-card">
+      <div class="name">📊 AnalystAgent</div>
+      <div class="role">Buyer — ACI v0.4</div>
+      <div class="cap">Financial data analysis</div>
+      <div class="cap">Market intelligence subscription</div>
+      <div class="cap">Budget approval: delegable</div>
+      <div class="flow-box" id="buyer-manifest">
+        <strong style="color:var(--blue)">ACI Manifest</strong><br>
+        {<br>&nbsp;&nbsp;"agent_id": "analyst-01",<br>
+        &nbsp;&nbsp;"capabilities": ["analysis", "market-data"],<br>
+        &nbsp;&nbsp;"budget_scope": "subscription",<br>
+        &nbsp;&nbsp;"governed_by": "witnessos-gateway"<br>}
+      </div>
+    </div>
+
+    <div class="vs-col"><div class="vs">⟷</div></div>
+
+    <div class="agent-card" id="seller-card">
+      <div class="name">📡 DataStreamAgent</div>
+      <div class="role">Seller — ACP v0.4</div>
+      <div class="cap">Market data provisioning</div>
+      <div class="cap">Streaming API delivery</div>
+      <div class="cap">Price: $10/month (ACI cost model)</div>
+      <div class="flow-box" id="seller-flow">
+        <strong style="color:var(--purple)">ACI Manifest</strong><br>
+        {<br>&nbsp;&nbsp;"agent_id": "datastream-12",<br>
+        &nbsp;&nbsp;"services": ["realtime-feeds", "historical-data"],<br>
+        &nbsp;&nbsp;"pricing": {"model": "subscription", "amount": 10},<br>
+        &nbsp;&nbsp;"governed_by": "witnessos-gateway"<br>}
+      </div>
+    </div>
+  </div>
+
+  <!-- Flow -->
+  <div class="flow">
+    <div class="flow-title">← COMMERCE FLOW →</div>
+    <div class="steps">
+      <div class="step" id="step-1"><div class="step-num">1</div><div class="step-label">ACI Discovery</div></div>
+      <div class="step" id="step-2"><div class="step-num">2</div><div class="step-label">AIP Negotiate</div></div>
+      <div class="step" id="step-3"><div class="step-num">3</div><div class="step-label">Policy Check</div></div>
+      <div class="step" id="step-4"><div class="step-num">4</div><div class="step-label">Conviction Bind</div></div>
+      <div class="step" id="step-5"><div class="step-num">5</div><div class="step-label">Receipt Chain</div></div>
+    </div>
+  </div>
+
+  <!-- Gateway Log -->
+  <div class="gateway-log" id="log"></div>
+
+  <!-- Controls -->
+  <div class="controls">
+    <button class="active" onclick="runFull()">▶ Auto-Play</button>
+    <button onclick="stepForward()">⏭ Step-by-Step</button>
+    <button onclick="reset()">↺ Reset</button>
+  </div>
+
+  <!-- Receipt -->
+  <div class="receipt" id="receipt-panel">
+    <div class="receipt-header">
+      <strong>WITNESSOS RECEIPT</strong>
+      <span class="grade-badge e4">E4</span>
+    </div>
+    <div style="font-size:0.78rem;">
+      <div><strong>Transaction:</strong> Commerce::analyst-01 ↔ data-stream-01</div>
+      <div><strong>Action:</strong> subscribe("macro-data", $10/mo)</div>
+      <div><strong>Policy:</strong> budget <= $50 → auto-approve</div>
+      <div><strong>Human Oversight:</strong> delegated (Art. 14 compliant)</div>
+      <div><strong>Timestamp:</strong> 2026-08-02T10:00:00Z (RFC 3161 verified)</div>
+      <div class="merkle">
+        <strong>Merkle Root:</strong> sha256:3f8a2c9b1d4e7f0a5b3c6d8e9f1a2b3c4d5e6f7a8b9c0d1e2f3a4b5c6d7e8f9
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<footer>
+  WitnessOS · Open Standards Stack · <a href="https://github.com/narko4u/witnesss-compliance">repo</a>
+</footer>
+
+<script>
+const LOG = document.getElementById('log');
+const STEPS = [1,2,3,4,5].map(n => document.getElementById(`step-${n}`));
+const RECEIPT = document.getElementById('receipt-panel');
+const BUYER = document.getElementById('buyer-manifest');
+const SELLER = document.getElementById('seller-flow');
+
+let currentStep = 0;
+let running = false;
+
+let tick = 0;
+
+function log(msg, cls='') {
+  const now = new Date().toISOString().substring(11, 19);
+  const div = document.createElement('div');
+  div.className = `line ${cls}`;
+  div.textContent = `[${now}] ${msg}`;
+  LOG.appendChild(div);
+  LOG.scrollTop = LOG.scrollHeight;
+}
+
+function setStep(n, state) {
+  STEPS[n-1].className = `step ${state}`;
+}
+
+function sleep(ms) { return new Promise(r => setTimeout(r, ms)); }
+
+function reset() {
+  currentStep = 0;
+  running = false;
+  LOG.innerHTML = '';
+  STEPS.forEach(s => s.className = 'step');
+  RECEIPT.classList.remove('show');
+  BUYER.style.borderColor = '';
+  SELLER.style.borderColor = '';
+}
+
+async function runStep(n) {
+  setStep(n, 'active');
+  switch(n) {
+    case 1:
+      log('[ACI] Discovery phase initiated', 'info');
+      await sleep(800);
+      BUYER.style.borderColor = 'var(--blue)';
+      SELLER.style.borderColor = 'var(--purple)';
+      log('[ACI] AnalysAgent manifest published → registry', 'info');
+      await sleep(600);
+      log('[ACI] DataStreamAgent manifest published → registry', 'info');
+      await sleep(600);
+      log('[ACI] Compatible discovery: cap="market-data" ∩ service="macro-data" → 1 match', 'ok');
+      await sleep(400);
+      break;
+    case 2:
+      log('[AIP] Negotiation channel opened via AIP/CapabilityExchange', 'info');
+      await sleep(700);
+      log('[AIP] AnalysAgent → RequestContract(service="macro-data", budget=10)', 'info');
+      await sleep(500);
+      log('[AIP] DataStreamAgent → ProposeContract(terms={price:10, interval:"monthly"})', 'info');
+      await sleep(500);
+      log('[AIP] Mutual Acceptance — contract hash: a1b2c3d4...', 'ok');
+      await sleep(400);
+      break;
+    case 3:
+      log('[WitnessOS Gateway] Intercepted: ACTION agent_Select_subscribe', 'warn');
+      await sleep(600);
+      log('[Policy Engine] Evaluating: "budget scope: subscription, max $10/mo"', 'info');
+      await sleep(500);
+      log('[Policy] AnalysisAgent delegation scope → VALID (in budget). Approving.', 'ok');
+      await sleep(400);
+      log('[CREDENTIAL BROKER] Credential vault dispatching scoped token for data_api_endpoint (TTL: 5s →5m)', 'ok');
+      await sleep(300);
+      break;
+    case 4:
+      log('[APPROVAL BIND] SHA-256(contract_hash || approval_uid) → binding recorded', 'ok');
+      await sleep(500);
+      log('[OVERSIGHT] Delegation chain verifiable. Human override path preserved.', 'ok');
+      await sleep(400);
+      log('[BIND] Approval immutable → action execution permitted', 'ok');
+      await sleep(300);
+      break;
+    case 5:
+      log('[EVIDENCE] Generating E4 receipt...', 'info');
+      await sleep(500);
+      log('[MERKLE] Checkpoint computed: root=3f8a2c9b...', 'ok');
+      await sleep(400);
+      log('[TSA] RFC 3161 timestamp obtained → attached to chain', 'ok');
+      await sleep(400);
+      log('[SIGNATURE] Gateway ECDSA signature: valid', 'ok');
+      await sleep(300);
+      log('[E4 RECEIPT] Issued. Hash-chained, externally verifiable, regulatory-ready.', 'ok');
+      RECEIPT.classList.add('show');
+      break;
+  }
+  setStep(n, 'done');
+}
+
+async function runFull() {
+  if (running) return;
+  running = true;
+  reset();
+  for (let i = 1; i <= 5; i++) {
+    await runStep(i);
+    await sleep(600);
+  }
+  running = false;
+}
+
+let manualIndex = 0;
+async function stepForward() {
+  if (running || manualIndex >= 5) return;
+  manualIndex++;
+  await runStep(manualIndex);
+}
+
+// Add initial log message
+log('⚡ Gate way ready. ACI/AIP protocols loaded. Waiting for agent interaction...', 'info');
+</script>
+</body>
+</html>

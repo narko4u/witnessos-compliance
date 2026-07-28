@@ -1,0 +1,326 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Rogue Agent — WitnessOS Video</title>
+<style>
+* { margin:0; padding:0; box-sizing:border-box; }
+body { background:#0a0a0f; }
+canvas { display:block; }
+</style>
+</head>
+<body>
+<canvas id="c"></canvas>
+
+<script>
+const canvas = document.getElementById('c');
+const ctx = canvas.getContext('2d');
+const W = 1920, H = 1080;
+canvas.width = W; canvas.height = H;
+
+const BG = '#0a0a0f';
+const TEAL = '#00d4aa';
+const RED = '#ef4444';
+const WARN = '#f59e0b';
+const MUTED = '#6b6b7b';
+const WHITE = '#e0e0e8';
+
+let frame = 0;
+const FPS = 30;
+const TOTAL_FRAMES = 37 * FPS; // 37 seconds at 30fps
+
+function pulse(v, speed) { return 0.5 + 0.5 * Math.sin(v * speed); }
+
+function drawScene1(v) {
+    // Scene 1: The Setup (0-5s)
+    ctx.fillStyle = BG; ctx.fillRect(0, 0, W, H);
+    const t = v / 150; // normalized 0-1 over 5s
+
+    // Terminal cursor
+    ctx.fillStyle = WHITE;
+    ctx.font = '24px "Courier New", monospace';
+    ctx.fillText('$ agent-deploy --agent=procurement-v2', 100, 260);
+
+    // Status line appears
+    if (t > 0.4) {
+        const a = Math.min(1, (t - 0.4) / 0.3);
+        ctx.globalAlpha = a;
+        ctx.fillStyle = TEAL;
+        ctx.fillText('STATUS: RUNNING ✓', 140, 320);
+        ctx.globalAlpha = 1;
+    }
+
+    // Heartbeat pulse
+    if (t > 0.2) {
+        const hp = pulse(v, 0.15);
+        ctx.fillStyle = TEAL;
+        ctx.globalAlpha = 0.4 + hp * 0.6;
+        ctx.font = 'bold 28px "Courier New", monospace';
+        ctx.fillText('♥', 80, 90);
+        ctx.globalAlpha = 1;
+    }
+
+    // Agent list builds up
+    const agents = ['analyst-01', 'datastream-12', 'gateway-main', 'soc-bot', 'deploy-bot'];
+    for (let i = 0; i < agents.length; i++) {
+        const appearTime = 0.6 + i * 0.15;
+        if (t > appearTime) {
+            const a = Math.min(1, (t - appearTime) / 0.2);
+            ctx.globalAlpha = a;
+            const y = 420 + i * 60;
+            ctx.fillStyle = TEAL;
+            ctx.fillRect(100, y - 10, 8, 8);
+            ctx.fillStyle = WHITE;
+            ctx.font = '18px "Courier New", monospace';
+            ctx.fillText(agents[i], 120, y);
+            ctx.fillStyle = MUTED;
+            ctx.fillText('[GOVERNED]', 300, y);
+        }
+    }
+    ctx.globalAlpha = 1;
+
+    // Dashboard text glitch at end
+    if (t > 0.85) {
+        ctx.fillStyle = t % 0.15 < 0.05 ? RED : TEAL;
+        ctx.font = '18px "Courier New", monospace';
+        ctx.fillText('DASHBOARD: @ agents governed', 100, 780);
+    }
+}
+
+function drawScene2(v) {
+    // Scene 2: The Breach (5-10s)
+    ctx.fillStyle = BG; ctx.fillRect(0, 0, W, H);
+    const t = (v - 150) / 150;
+
+    // Credential tokens cracking
+    const toks = ['sk-proj-abc123def456...', 'ghp_token_xyz789...', 'SLACK_BOT=xoxb-...'];
+    for (let i = 0; i < 3; i++) {
+        const start = i * 0.3;
+        const y = 200 + i * 100;
+        if (t > start) {
+            const a = Math.min(1, (t - start) / 0.5);
+            ctx.globalAlpha = a;
+            ctx.fillStyle = i === Math.floor(t * 3) % 3 ? RED : MUTED;
+            ctx.font = '20px "Courier New", monospace';
+            ctx.fillText(`⛓ ${toks[i]}`, 100 + i * 80, y);
+        }
+    }
+    ctx.globalAlpha = 1;
+
+    // ROGUE stamp
+    if (t > 1.5) {
+        const a = Math.min(1, (t - 1.5) / 1);
+        ctx.fillStyle = RED;
+        ctx.font = 'bold 52px "Courier New", monospace';
+        ctx.globalAlpha = a;
+        ctx.fillText('⚠ AGENT COMPROMISED', 600, 480);
+        ctx.globalAlpha = 1;
+    }
+
+    // Stats come in
+    const stats = [
+        { v: '92%', lbl: 'of CISOs cannot detect a compromised agent', x: 100, y: 650 },
+        { v: '95%', lbl: 'cannot contain one', x: 100, y: 720 },
+        { v: '17%', lbl: 'monitor agent-to-agent traffic', x: 100, y: 790 },
+    ];
+    stats.forEach((s, i) => {
+        const start = 0.2 + i * 0.4;
+        if (t > start) {
+            const a = Math.min(1, (t - start) / 0.3);
+            ctx.globalAlpha = a;
+            ctx.fillStyle = RED;
+            ctx.font = 'bold 42px "Courier New", monospace';
+            ctx.fillText(s.v, s.x, s.y - 10);
+            ctx.fillStyle = MUTED;
+            ctx.font = '18px "Courier New", monospace';
+            ctx.fillText(s.lbl, s.x + 120, s.y + 10);
+        }
+    });
+    ctx.globalAlpha = 1;
+
+    // Blast radius
+    if (t > 3) {
+        const a = Math.min(1, (t - 3) / 1);
+        for (let ri = 0; ri < 3; ri++) {
+            const rr = 40 + (t - 3) * 180 + ri * 30;
+            ctx.strokeStyle = RED;
+            ctx.lineWidth = 1;
+            ctx.globalAlpha = a * (1 - ri * 0.3);
+            ctx.beginPath();
+            ctx.arc(200, 500, rr, 0, Math.PI * 2);
+            ctx.stroke();
+        }
+        ctx.globalAlpha = a;
+        ctx.fillStyle = RED;
+        ctx.font = '18px "Courier New", monospace';
+        ctx.fillText('BLAST RADIUS', 300, 400);
+        ctx.globalAlpha = 1;
+    }
+}
+
+function drawScene3(v) {
+    // Scene 3: Solution (10-15s)
+    ctx.fillStyle = BG; ctx.fillRect(0, 0, W, H);
+    const t = (v - 300) / 150;
+
+    // Agent box - empty
+    ctx.strokeStyle = TEAL; ctx.lineWidth = 2;
+    ctx.strokeRect(100, 350, 240, 110);
+    ctx.fillStyle = WHITE;
+    ctx.font = 'bold 22px "Courier New", monospace';
+    ctx.fillText('AGENT', 160, 390);
+    ctx.fillStyle = MUTED;
+    ctx.font = '16px "Courier New", monospace';
+    ctx.fillText('(holds nothing)', 150, 425);
+
+    // No-keys symbol
+    if (t > 0.5) {
+        const a = Math.min(1, (t - 0.5) / 0.5);
+        ctx.globalAlpha = a * pulse(v, 0.1);
+        ctx.fillStyle = TEAL;
+        ctx.font = 'bold 60px "Courier New", monospace';
+        ctx.fillText('⌀', 490, 430);
+        ctx.globalAlpha = 1;
+    }
+
+    // Gateway vault
+    if (t > 0.8) {
+        const a = Math.min(1, (t - 0.8) / 0.5);
+        ctx.globalAlpha = a;
+        ctx.strokeStyle = TEAL; ctx.lineWidth = 3;
+        ctx.strokeRect(600, 300, 320, 160);
+        ctx.fillStyle = TEAL;
+        ctx.font = 'bold 24px "Courier New", monospace';
+        ctx.fillText('VAULT', 720, 355);
+        const checks = ['BUDGET_CHECK ✓', 'SCOPE_RANGE ✓', 'HUMAN_APPROVAL ✓'];
+        checks.forEach((c, i) => {
+            ctx.fillStyle = t > 1.2 + i * 0.5 ? TEAL : MUTED;
+            ctx.font = '16px "Courier New", monospace';
+            ctx.fillText(c, 630, 395 + i * 25);
+        });
+        ctx.globalAlpha = 1;
+    }
+
+    // Arrow agent → vault → action
+    ctx.strokeStyle = TEAL; ctx.lineWidth = 2;
+    ctx.beginPath(); ctx.moveTo(300, 405); ctx.lineTo(600, 405); ctx.stroke();
+    
+    if (t > 2.5) {
+        ctx.strokeStyle = TEAL;
+        ctx.strokeRect(1050, 350, 200, 100);
+        ctx.fillStyle = WHITE;
+        ctx.font = 'bold 20px "Courier New", monospace';
+        ctx.fillText('ACTION', 1110, 400);
+        ctx.beginPath(); ctx.moveTo(920, 405); ctx.lineTo(1050, 405); ctx.stroke();
+    }
+
+    // Credentials stay in vault
+    if (t > 3) {
+        ctx.fillStyle = TEAL;
+        ctx.font = '14px "Courier New", monospace';
+        ctx.fillText('Credentials never leave vault →', 630, 490);
+    }
+}
+
+function drawScene4(v) {
+    // Scene 4: The Proof (15-20s)
+    ctx.fillStyle = BG; ctx.fillRect(0, 0, W, H);
+    const t = (v - 450) / 150;
+
+    // Receipt chain E0→E4
+    const grades = ['E0', 'E1', 'E2', 'E3', 'E4'];
+    const names = ['Intent', 'Outcome', 'Proof', 'Binding', 'Witness'];
+    for (let i = 0; i < 5; i++) {
+        const start = i * 0.6;
+        const x = 80 + i * 220;
+        const y = 450;
+        if (t > start) {
+            const a = Math.min(1, (t - start) / 0.4);
+            ctx.globalAlpha = a;
+            ctx.strokeStyle = TEAL; ctx.lineWidth = 2;
+            ctx.strokeRect(x, y, 180, 90);
+            ctx.fillStyle = TEAL;
+            ctx.font = 'bold 28px "Courier New", monospace';
+            ctx.fillText(grades[i], x + 10, y + 35);
+            ctx.fillStyle = MUTED;
+            ctx.font = '14px "Courier New", monospace';
+            ctx.fillText(names[i], x + 10, y + 65);
+            // chain
+            if (i > 0) {
+                ctx.strokeStyle = TEAL;
+                ctx.beginPath();
+                ctx.moveTo(x, y + 45);
+                ctx.lineTo(x - 60, y + 45);
+                ctx.stroke();
+                ctx.fillStyle = MUTED;
+                ctx.font = '12px "Courier New", monospace';
+                ctx.fillText('→', x - 45, y + 55);
+            }
+        }
+    }
+    ctx.globalAlpha = 1;
+
+    // E4 badge
+    if (t > 3.5) {
+        const a = Math.min(1, (t - 3.5) / 0.5);
+        ctx.globalAlpha = a;
+        ctx.fillStyle = TEAL;
+        ctx.font = 'bold 48px "Courier New", monospace';
+        ctx.fillText('E4 VERIFIED', 1330, 470);
+        ctx.fillStyle = MUTED;
+        ctx.font = '16px "Courier New", monospace';
+        ctx.fillText('RFC 3161 · hash-chain', 1330, 510);
+        ctx.fillText('externally verifiable', 1330, 535);
+        ctx.globalAlpha = 1;
+    }
+}
+
+function drawScene5(v) {
+    // Scene 5: Close (20-27s)
+    ctx.fillStyle = BG; ctx.fillRect(0, 0, W, H);
+    const t = (v - 600) / 210;
+
+    const a = Math.min(1, t / 1.5);
+    ctx.globalAlpha = a;
+    ctx.fillStyle = WHITE;
+    ctx.font = 'bold 42px "Courier New", monospace';
+    ctx.textAlign = 'center';
+    ctx.fillText('The agent holds nothing.', W/2, 320);
+    ctx.fillText('The gateway holds everything.', W/2, 390);
+    ctx.fillText('The evidence is on the chain.', W/2, 460);
+
+    ctx.fillStyle = TEAL;
+    ctx.font = 'bold 56px "Courier New", monospace';
+    ctx.fillText('WitnessOS', W/2, 570);
+
+    ctx.fillStyle = MUTED;
+    ctx.font = '22px "Courier New", monospace';
+    ctx.fillText('empirelabs.com.au  ·  Schedule a demo', W/2, 660);
+    ctx.textAlign = 'start';
+    ctx.globalAlpha = 1;
+}
+
+const drawers = [drawScene1, drawScene2, drawScene3, drawScene4, drawScene5];
+const sceneBounds = [0, 150, 300, 450, 600, 810];
+
+function render() {
+    // Find which scene
+    let sceneIdx = 0;
+    for (let i = 0; i < drawers.length; i++) {
+        if (frame >= sceneBounds[i]) sceneIdx = i;
+    }
+    
+    drawers[sceneIdx](frame);
+    frame++;
+    
+    if (frame < TOTAL_FRAMES) {
+        requestAnimationFrame(render);
+    } else {
+        console.log('DONE: all frames rendered');
+    }
+}
+
+requestAnimationFrame(render);
+</script>
+</body>
+</html>

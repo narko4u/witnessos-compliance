@@ -1,0 +1,303 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Empire Labs — Agent Governance for the Autonomous Era</title>
+<style>
+:root {
+  --bg: #0a0a0f;
+  --surface: #111118;
+  --border: #1e1e2a;
+  --text: #e0e0e8;
+  --muted: #6b6b7b;
+  --accent: #00d4aa;
+  --warn: #f59e0b;
+  --danger: #ef4444;
+  --blue: #3b82f6;
+  --purple: #8b5cf6;
+  --radius: 6px;
+  --font: 'SF Mono', 'Cascadia Code', 'Fira Code', system-ui, sans-serif;
+}
+* { margin:0; padding:0; box-sizing:border-box; }
+body {
+  font-family: var(--font);
+  background: var(--bg);
+  color: var(--text);
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 2rem 1rem;
+}
+
+header {
+  text-align: center;
+  margin-bottom: 2.5rem;
+  max-width: 700px;
+}
+header h1 {
+  font-size: 2rem;
+  font-weight: 700;
+  letter-spacing: -0.02em;
+  line-height: 1.2;
+}
+header h1 span { color: var(--accent); }
+header .subtitle {
+  margin-top: 1rem;
+  font-size: 1rem;
+  color: var(--muted);
+  line-height: 1.5;
+}
+
+.container {
+  width: 100%;
+  max-width: 700px;
+  display: flex;
+  flex-direction: column;
+  gap: 2rem;
+}
+
+/* Stats row */
+.stats {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 1rem;
+}
+.stat-card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 1.25rem;
+  text-align: center;
+}
+.stat-num {
+  font-size: 2rem;
+  font-weight: 900;
+  color: var(--accent);
+}
+.stat-label {
+  font-size: 0.72rem;
+  color: var(--muted);
+  margin-top: 0.35rem;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+}
+
+/* Demo cards */
+.section-title {
+  font-size: 0.85rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  color: var(--accent);
+  margin-bottom: 0;
+}
+.demos {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 0.75rem;
+}
+.demo-card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 1.25rem;
+  text-decoration: none;
+  color: var(--text);
+  transition: border-color 0.2s;
+}
+.demo-card:hover { border-color: var(--accent); }
+.demo-card .demo-title {
+  font-weight: 700;
+  margin-bottom: 0.4rem;
+  font-size: 0.9rem;
+}
+.demo-card .demo-desc {
+  font-size: 0.75rem;
+  color: var(--muted);
+  line-height: 1.4;
+}
+
+/* CTA section */
+.cta-box {
+  background: var(--surface);
+  border: 2px solid var(--accent);
+  border-radius: var(--radius);
+  padding: 2rem;
+  text-align: center;
+}
+.cta-box h2 {
+  font-size: 1.3rem;
+  margin-bottom: 0.5rem;
+}
+.cta-box p {
+  color: var(--muted);
+  font-size: 0.85rem;
+  margin-bottom: 1.5rem;
+  line-height: 1.5;
+}
+.cta-buttons {
+  display: flex;
+  gap: 1rem;
+  justify-content: center;
+  flex-wrap: wrap;
+}
+.cta-btn {
+  font-family: var(--font);
+  padding: 0.75rem 2rem;
+  border-radius: var(--radius);
+  font-size: 0.9rem;
+  font-weight: 700;
+  cursor: pointer;
+  text-decoration: none;
+  transition: all 0.2s;
+  display: inline-block;
+}
+.cta-btn.primary {
+  background: var(--accent);
+  color: var(--bg);
+  border: 2px solid var(--accent);
+}
+.cta-btn.primary:hover { opacity: 0.85; }
+.cta-btn.secondary {
+  background: transparent;
+  color: var(--accent);
+  border: 2px solid var(--accent);
+}
+.cta-btn.secondary:hover { background: rgba(0,212,170,0.08); }
+
+/* Open standards */
+.standards {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 0.75rem;
+}
+.std-card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 1rem 1.25rem;
+}
+.std-name {
+  font-weight: 700;
+  font-size: 0.9rem;
+}
+.std-name.aci { color: var(--blue); }
+.std-name.aip { color: var(--purple); }
+.std-name.ajson { color: var(--accent); }
+.std-desc {
+  font-size: 0.72rem;
+  color: var(--muted);
+  margin-top: 0.25rem;
+  line-height: 1.4;
+}
+.std-link {
+  display: inline-block;
+  margin-top: 0.5rem;
+  font-size: 0.7rem;
+  color: var(--accent);
+  text-decoration: none;
+  font-weight: 600;
+}
+
+/* Footer */
+footer {
+  margin-top: 2rem;
+  text-align: center;
+  font-size: 0.72rem;
+  color: var(--muted);
+  max-width: 700px;
+  line-height: 1.5;
+}
+footer a { color: var(--accent); text-decoration: none; }
+
+@media (max-width: 640px) {
+  .stats, .demos, .standards { grid-template-columns: 1fr; }
+  .cta-buttons { flex-direction: column; }
+}
+</style>
+</head>
+<body>
+
+<header>
+  <h1>Agent Governance for the <span>Autonomous Era</span></h1>
+  <div class="subtitle">
+    The EU AI Act enforces August 2, 2026. Your agents need verifiable governance — not just observation, but architectural enforcement. WitnessOS' credential-brokered enforcement model answers the question: "who governs the agents?"
+  </div>
+</header>
+
+<div class="container">
+
+  <!-- Stats -->
+  <div class="stats">
+    <div class="stat-card">
+      <div class="stat-num">92%</div>
+      <div class="stat-label">orgs lack AI agent identity visibility</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-num">95%</div>
+      <div class="stat-label">CISOs who cannot detect a compromised agent</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-num">17%</div>
+      <div class="stat-label">orgs monitoring agent-to-agent traffic</div>
+    </div>
+  </div>
+
+  <!-- Live Demos -->
+  <div class="section-title">▶ Interactive Demos</div>
+  <div class="demos">
+    <a href="interactive-demo.html" class="demo-card">
+      <div class="demo-name">⚡ WitnessOS Demo</div>
+      <div class="demo-desc">5-step credential-brokered enforcement flow: Fire → Identity → Policy → Approval → Receipt</div>
+    </a>
+    <a href="receipt-visualizer.html" class="demo-card">
+      <div class="demo-name">🧾 Receipt Visualizer</div>
+      <div class="demo-desc">Paste any receipt JSON → rendered evidence chain with Merkle checkpoint, TSA anchor, E4 badge</div>
+    </a>
+    <a href="commerce-demo.html" class="demo-card">
+      <div class="demo-name">🤖 Agent Commerce</div>
+      <div class="demo-desc">ACI Discovery → AIP Negotiation → Gateway Enforcement — two agents find a contract and execute it under governance</div>
+    </a>
+  </div>
+
+  <!-- CTA -->
+  <div class="cta-box">
+    <h2>Ready to govern your agents?</h2>
+    <p>If you deploy autonomous AI agents — for procurement, DevOps, finance, or tool-calling — the EU AI Act Compliance applies. We help enterprises deploy credential-brokered enforcement that proves compliance, not just documents it.</p>
+    <div class="cta-buttons">
+      <a href="https://calendly.com/empirelabs/agent-governance-intro" class="cta-btn primary">📅 Schedule a Demo</a>
+      <a href="mailto:hello@empirelabs.com.au" class="cta-btn secondary">📧 Email Us</a>
+    </div>
+  </div>
+
+  <!-- Open Standards -->
+  <div class="section-title">🔓 Open Standards Stack</div>
+  <div class="standards">
+    <div class="std-card">
+      <div class="std-name aci">ACI</div>
+      <div class="std-desc">Agent Communication Interface — machine-readable agent manifests. Registers capabilities, identity, and governance scope.</div>
+      <a href="https://github.com/narko4u/witnessos-compliance/tree/main/aci/py" class="std-link">pip install aci-spec →</a>
+    </div>
+    <div class="std-card">
+      <div class="std-name aip">AIP</div>
+      <div class="std-desc">Agent Interaction Protocol — negotiation, capability routing, and commerce settlement between autonomous agents.</div>
+      <a href="https://github.com/narko4u/witnessos-compliance/tree/main/aip/go" class="std-link">go get aip-spec →</a>
+    </div>
+    <div class="std-card">
+      <div class="std-name ajson">AJSON</div>
+      <div class="std-desc">Agent JSON — superset of JSON with schema enforcement for agent manifests. Compiles to standard JSON.</div>
+      <a href="https://pypi.org/project/ajson-spec/" class="std-link">pod install ajson-spec →</a>
+    </div>
+  </div>
+
+</div>
+
+<footer>
+  Empire Labs Pty Ltd · Security Division · <a href="https://github.com/narko4u/witnessos-compliance">github.com/narko4u/witnessos-compliance</a><br>
+  ACI, AIP, and AJSON are open standards under Apache 2.0. credential-brokered enforcement is compatible with any conforming agent architecture.
+</footer>
+
+</body>
+</html>
