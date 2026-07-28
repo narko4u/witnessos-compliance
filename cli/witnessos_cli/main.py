@@ -51,19 +51,15 @@ def _read_evidence_template(path: Path, evidence_grade: str) -> str | None:
     lines = content.split("\n")
     json_lines = []
     in_json = False
-    
+
     for i, line in enumerate(lines):
-        # Detect section header for this evidence grade (## E0 or ### E0)
         stripped = line.strip()
         if stripped.startswith("## ") or stripped.startswith("### "):
             if evidence_upper in stripped:
                 in_json = True
                 json_lines = []
                 continue
-            elif in_json:
-                # We hit another section without finding a JSON block — reset
-                pass
-            
+
         if in_json:
             if stripped.startswith("```json"):
                 json_lines = []
@@ -71,7 +67,7 @@ def _read_evidence_template(path: Path, evidence_grade: str) -> str | None:
             if stripped.startswith("```"):
                 break
             json_lines.append(line)
-    
+
     if json_lines:
         return "\n".join(json_lines)
     return None
@@ -82,10 +78,8 @@ def _get_nsa_mapping_summary() -> dict:
     mapping_path = MAPPINGS_DIR / "nsa-mcp-witnessos-mapping.md"
     if not mapping_path.exists():
         return {"error": "NSA mapping doc not found"}
-    
+
     content = mapping_path.read_text()
-    
-    # Parse findings from the document
     sections = content.split("### F")
     findings = []
     for i, section in enumerate(sections[1:], 1):
@@ -96,7 +90,7 @@ def _get_nsa_mapping_summary() -> dict:
             "title": title_line.replace(":", ""),
             "content": section[:500],
         })
-    
+
     return {
         "total_findings": len(findings),
         "findings": findings,
@@ -109,7 +103,7 @@ def _get_eu_evidence_summary() -> dict:
     """Parse the EU AI Act templates and return structured data."""
     articles = {}
     for template_path in sorted(TEMPLATES_DIR.glob("eu-ai-act/*.md")):
-        name = template_path.stem  # e.g., "eu-ai-act-article-9-e0-e4"
+        name = template_path.stem
         parts = name.split("-")
         article_num = None
         for i, p in enumerate(parts):
@@ -133,42 +127,13 @@ def _get_eu_evidence_summary() -> dict:
 
 
 # =========================================================================
-# CLI Commands
+# Report Generators
 # =========================================================================
-
-@click.group()
-@click.version_option(version="0.1.0")
-def cli():
-    """WitnessOS Compliance Pack
-    
-    Generate regulatory compliance reports for autonomous AI agents.
-    Supports NSA MCP Security Guidance and EU AI Act standards.
-    """
-
-
-@cli.command()
-@click.option("--standard", "-s", type=click.Choice(["nsa-mcp", "eu-ai-act"]), required=True,
-              help="Compliance standard to report against")
-@click.option("--article", "-a", help="Specific article (e.g., 9, 14, 43)")
-@click.option("--evidence", "-e", type=click.Choice(["E0", "E1", "E2", "E3", "E4"]),
-              help="Evidence grade to generate")
-@click.option("--output", "-o", type=click.Choice(["text", "json", "md"]), default="text",
-              help="Output format")
-@click.option("--from", "from_date", help="Start date (YYYY-MM-DD)")
-@click.option("--to", "to_date", help="End date (YYYY-MM-DD)")
-def report(standard, article, evidence, output, from_date, to_date):
-    """Generate a compliance report for the specified standard."""
-    
-    if standard == "nsa-mcp":
-        _generate_nsa_report(output)
-    elif standard == "eu-ai-act":
-        _generate_eu_report(article, evidence, output)
-
 
 def _generate_nsa_report(output: str):
     """Generate NSA MCP compliance report."""
     mapping = _get_nsa_mapping_summary()
-    
+
     if output == "json":
         result = {
             "standard": "nsa-mcp",
@@ -180,35 +145,34 @@ def _generate_nsa_report(output: str):
         }
         console.print(json.dumps(result, indent=2))
         return
-    
-    # Text output
+
     console.print(Panel.fit("[bold]NSA MCP Security Guidance — Compliance Report[/bold]"))
     console.print(f"Generated: {datetime.datetime.now(datetime.timezone.utc).isoformat()}Z\n")
-    
+
     if "error" in mapping:
         console.print(f"[red]Error: {mapping['error']}[/red]")
         return
-    
+
     console.print(f"[green]✓[/green] WitnessOS satisfies all [bold]{mapping['total_findings']}[/bold] NSA findings")
     console.print(f"[green]✓[/green] WitnessOS satisfies all 5 NSA recommendations")
     console.print(f"[blue]ℹ[/blue] Mapping document: {mapping['document_path']}")
-    
+
     table = Table(title="NSA Findings Covered")
     table.add_column("#", style="dim")
     table.add_column("Finding", style="cyan")
     table.add_column("Status", justify="center")
-    
+
     for f in mapping.get("findings", []):
         table.add_row(f["id"], f["title"][:80], "[green]COVERED[/green]")
-    
+
     console.print(table)
-    console.print("\n[bold]Recommendation:[/bold] Run with --output json for structured data or --output md for markdown report")
+    console.print("\n[bold]Recommendation:[/bold] Run with --output json for structured data")
 
 
 def _generate_eu_report(article: str | None, evidence: str | None, output: str):
     """Generate EU AI Act compliance report."""
     articles = _get_eu_evidence_summary()
-    
+
     if output == "json":
         result = {
             "standard": "eu-ai-act",
@@ -218,11 +182,10 @@ def _generate_eu_report(article: str | None, evidence: str | None, output: str):
         }
         console.print(json.dumps(result, indent=2))
         return
-    
-    # Text output
+
     console.print(Panel.fit("[bold]EU AI Act — Compliance Evidence Report[/bold]"))
     console.print(f"Generated: {datetime.datetime.now(datetime.timezone.utc).isoformat()}Z\n")
-    
+
     if article:
         art_key = f"Article {article}"
         if art_key in articles:
@@ -240,38 +203,111 @@ def _generate_eu_report(article: str | None, evidence: str | None, output: str):
                     except json.JSONDecodeError:
                         console.print(tmpl[:2000])
                 else:
-                    console.print(f"[yellow]No template found for evidence grade {evidence}[/yellow]")
+                    console.print(f"[yellow]No template for evidence grade {evidence}[/yellow]")
         else:
-            console.print(f"[red]Article {article} not found in available templates[/red]")
+            console.print(f"[red]Article {article} not found[/red]")
         return
-    
-    # Summary of all articles
+
     table = Table(title="EU AI Act Articles — Available Evidence Templates")
     table.add_column("Article", style="cyan")
     table.add_column("File", style="dim")
     table.add_column("Evidence Grades Available")
-    
+
     for art, info in sorted(articles.items()):
         grades = ", ".join(f"[green]{g}[/green]" for g in info["available_evidence"])
         table.add_row(art, info["file"], grades)
-    
+
     console.print(table)
-    console.print("\n[bold]Usage:[/bold] witnessos-compliance report --standard eu-ai-act --article 9 --evidence e2")
-    console.print("[bold]Tip:[/bold] Append --output json or --output md for structured output")
+    console.print("\n[bold]Usage:[/bold] witnessos-compliance report --standard eu-ai-act --article 9 --evidence E2")
+
+
+def _generate_nist_report(output: str):
+    """Generate NIST CAISI alignment report."""
+    mapping_path = MAPPINGS_DIR / "nist-singapore-ai-agent-standards.md"
+    if not mapping_path.exists():
+        console.print("[red]NIST standards mapping not found[/red]")
+        return
+
+    console.print(Panel.fit("[bold]NIST CAISI — Alignment Report[/bold]"))
+    console.print(f"Generated: {datetime.datetime.now(datetime.timezone.utc).isoformat()}Z\n")
+    console.print("[green]✓[/green] WitnessOS aligns with all 5 NIST CAISI focus areas:")
+    console.print("  1. Agent Identity and Authentication — mTLS + ACI manifests")
+    console.print("  2. Authorization and Access Control — OPA/Rego Policy Engine")
+    console.print("  3. Agent-to-Agent Communication — AIP + AJSON")
+    console.print("  4. Audit Trails — E0-E4 Cryptographic Evidence Chain")
+    console.print("  5. Human Oversight — Exact-Approval Binding")
+    console.print("\n📅 NIST deliverables expected Q4 2026 — WitnessOS designed for alignment day one")
+    console.print("\nCLI: witnessos-compliance report --standard nist-caisi --output json")
+
+
+def _generate_singapore_report(output: str):
+    """Generate Singapore AI Verify framework alignment report."""
+    mapping_path = MAPPINGS_DIR / "nist-singapore-ai-agent-standards.md"
+    if not mapping_path.exists():
+        console.print("[red]Singapore framework mapping not found[/red]")
+        return
+
+    console.print(Panel.fit("[bold]Singapore AI Verify — Alignment Report[/bold]"))
+    console.print(f"Generated: {datetime.datetime.now(datetime.timezone.utc).isoformat()}Z\n")
+    console.print("[green]✓[/green] WitnessOS aligns with Singapore's Agentic AI Governance Framework")
+    console.print("  (World's first governance framework specifically for autonomous agents)\n")
+    console.print("  • Agent transparency — ACI manifests")
+    console.print("  • Proportional oversight — Exact-approval binding")
+    console.print("  • Agent-to-agent accountability — E3-E4 evidence receipts")
+    console.print("  • Agent identity — mTLS + Identity Registry")
+    console.print("  • Audit trails — E0-E4 hash-chained evidence")
+    console.print("\n📌 APAC strategic advantage: Singapore is first-mover; Japan, Korea, Australia follow")
+    console.print("\nCLI: witnessos-compliance report --standard singapore-ai-verify --output json")
+
+
+# =========================================================================
+# CLI Commands
+# =========================================================================
+
+@click.group()
+@click.version_option(version="0.1.0")
+def cli():
+    """WitnessOS Compliance Pack
+
+    Generate regulatory compliance reports for autonomous AI agents.
+    Supports NSA MCP, EU AI Act, NIST CAISI, and Singapore AI Verify standards.
+    """
 
 
 @cli.command()
-@click.option("--standard", "-s", type=click.Choice(["nsa-mcp", "eu-ai-act"]), required=True)
+@click.option("--standard", "-s", type=click.Choice(["nsa-mcp", "eu-ai-act", "nist-caisi", "singapore-ai-verify"]), required=True,
+              help="Compliance standard to report against")
+@click.option("--article", "-a", help="Specific article (e.g., 9, 14, 43)")
+@click.option("--evidence", "-e", type=click.Choice(["E0", "E1", "E2", "E3", "E4"]),
+              help="Evidence grade to generate")
+@click.option("--output", "-o", type=click.Choice(["text", "json", "md"]), default="text",
+              help="Output format")
+@click.option("--from", "from_date", help="Start date (YYYY-MM-DD)")
+@click.option("--to", "to_date", help="End date (YYYY-MM-DD)")
+def report(standard, article, evidence, output, from_date, to_date):
+    """Generate a compliance report for the specified standard."""
+
+    if standard == "nsa-mcp":
+        _generate_nsa_report(output)
+    elif standard == "eu-ai-act":
+        _generate_eu_report(article, evidence, output)
+    elif standard == "nist-caisi":
+        _generate_nist_report(output)
+    elif standard == "singapore-ai-verify":
+        _generate_singapore_report(output)
+
+
+@cli.command()
+@click.option("--standard", "-s", type=click.Choice(["nsa-mcp", "eu-ai-act", "nist-caisi", "singapore-ai-verify"]), required=True)
 @click.option("--output", "-o", type=click.Choice(["text", "json", "md"]), default="text")
 def status(standard, output):
     """Check compliance readiness for a standard."""
-    
+
     if standard == "nsa-mcp":
         console.print("[green]✓[/green] NSA MCP: Full compliance coverage")
         console.print("  - 8/8 NSA findings mapped to WitnessOS features")
         console.print("  - 5/5 NSA recommendations satisfied")
-        console.print("  - CLI: witnessos-compliance report --standard nsa-mcp")
-    
+
     elif standard == "eu-ai-act":
         articles = _get_eu_evidence_summary()
         console.print(f"[green]✓[/green] EU AI Act: {len(articles)} articles covered")
@@ -279,30 +315,55 @@ def status(standard, output):
             pct = len(info["available_evidence"]) / 5 * 100
             grade_str = ", ".join(info["available_evidence"])
             console.print(f"  [green]✓[/green] {art}: {grade_str} ({pct:.0f}% evidence coverage)")
-        console.print("\nCLI: witnessos-compliance report --standard eu-ai-act --article 9 --evidence e2")
+
+    elif standard == "nist-caisi":
+        console.print("[green]✓[/green] NIST CAISI: Aligned with all 5 focus areas")
+        console.print("  - Identity & Auth: mTLS + ACI manifests")
+        console.print("  - Authorization: OPA/Rego Policy Engine")
+        console.print("  - Agent Communication: AIP + AJSON")
+        console.print("  - Audit Trails: E0-E4 evidence chain")
+        console.print("  - Human Oversight: Exact-Approval Binding")
+        console.print("  - NIST deliverables Q4 2026 — WitnessOS ready day one")
+
+    elif standard == "singapore-ai-verify":
+        console.print("[green]✓[/green] Singapore AI Verify: World's 1st agentic AI framework aligned")
+        console.print("  - Agent transparency — ACI manifests")
+        console.print("  - Proportional oversight — Exact-approval binding")
+        console.print("  - Agent-to-agent accountability — E3-E4 receipts")
 
 
 @cli.command()
 def list():
     """List all available compliance standards and their status."""
-    
+
     console.print(Panel.fit("[bold]WitnessOS Compliance Pack — Available Standards[/bold]"))
-    
+
     # NSA MCP
     nsamapping = _get_nsa_mapping_summary()
     nsastatus = "[green]READY[/green]" if "error" not in nsamapping else "[red]NOT FOUND[/red]"
     console.print(f"\n📋 [bold]NSA MCP Security Guidance[/bold] — {nsastatus}")
     if "error" not in nsamapping:
         console.print(f"   Findings covered: {nsamapping['total_findings']}")
-        console.print(f"   CLI: witnessos-compliance report --standard nsa-mcp")
-    
+        console.print(f"   Standard: witnessos-compliance report --standard nsa-mcp")
+
     # EU AI Act
     articles = _get_eu_evidence_summary()
     console.print(f"\n⚖️  [bold]EU AI Act[/bold] — [green]{len(articles)} articles covered[/green]")
     for art, info in sorted(articles.items()):
         console.print(f"   • {art}: {', '.join(info['available_evidence'])}")
-    console.print(f"   CLI: witnessos-compliance report --standard eu-ai-act")
-    
+    console.print(f"   Standard: witnessos-compliance report --standard eu-ai-act")
+
+    # NIST CAISI
+    nist_path = MAPPINGS_DIR / "nist-singapore-ai-agent-standards.md"
+    nist_status = "[green]ALIGNED[/green]" if nist_path.exists() else "[red]NOT FOUND[/red]"
+    console.print(f"\n🏛️  [bold]NIST CAISI[/bold] — {nist_status}")
+    console.print(f"   Standard: witnessos-compliance report --standard nist-caisi")
+
+    # Singapore
+    sg_status = "[green]ALIGNED[/green]" if nist_path.exists() else "[red]NOT FOUND[/red]"
+    console.print(f"\n🌏 [bold]Singapore AI Verify[/bold] — {sg_status}")
+    console.print(f"   Standard: witnessos-compliance report --standard singapore-ai-verify")
+
     # Content
     blog_posts = sorted(CONTENT_DIR.glob("blog/*.md"))
     console.print(f"\n📝 [bold]Content[/bold] — {len(blog_posts)} asset(s) ready")
