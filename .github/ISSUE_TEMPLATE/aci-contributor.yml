@@ -1,0 +1,72 @@
+name: ACI Contributor
+description: Propose changes to the Agent Capability Interface (ACI) specification, tooling, or integrations
+labels: [aci, needs-triage]
+body:
+  - type: dropdown
+    id: contribution-type
+    attributes:
+      label: Type of contribution
+      description: What kind of change are you proposing?
+      options:
+        - Feature — new capability, schema field, or validator rule
+        - Bug — incorrect validation, broken schema constraint, or runtime error
+        - Docs — README, API reference, usage examples, or inline docstrings
+        - Integration — adapter, serialiser, or language binding (non-Go, non-Python)
+    validations:
+      required: true
+
+  - type: dropdown
+    id: schema-change
+    attributes:
+      label: ACI schema changes
+      description: Does this contribution modify the ACI manifest schema (schema.py / MANIFEST_SCHEMA)?
+      options:
+        - "Yes"
+        - "No"
+    validations:
+      required: true
+
+  - type: textarea
+    id: description
+    attributes:
+      label: Description of proposed changes
+      description: Explain what you're changing and why. For schema changes, describe the new or modified fields and their intended semantics.
+      placeholder: |
+        e.g. "Add a 'security_context' field to the manifest schema so agents can declare required auth scopes."
+    validations:
+      required: true
+
+  - type: textarea
+    id: testing
+    attributes:
+      label: Testing approach
+      description: How have you tested these changes? Include test commands, coverage expectations, and any manual testing performed.
+      placeholder: |
+        - Added unit tests for new validator rules in tests/
+        - Ran `pytest aci/py/` — all tests pass
+        - Manually verified with sample manifests
+    validations:
+      required: true
+
+  - type: textarea
+    id: breaking
+    attributes:
+      label: Breaking changes
+      description: Will this change break existing ACI manifests or consumers? If so, describe the migration path.
+      placeholder: |
+        None. / Yes — existing manifests without the new field will still validate, but consumers that expect the new field will raise a warning.
+    validations:
+      required: false
+
+  - type: checkboxes
+    id: checklist
+    attributes:
+      label: Contributor checklist
+      options:
+        - label: I have read the CONTRIBUTING.md guidelines
+          required: true
+        - label: My changes are backward compatible or I have documented the migration path
+          required: true
+        - label: I have added or updated tests to cover my changes
+          required: true
+        - label: I have updated relevant documentation (docstrings, README, examples)
