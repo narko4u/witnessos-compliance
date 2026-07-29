@@ -1,6 +1,6 @@
 ---
 title: EU AI Act Enforcement Starts August 2. Who's Governing Your Agents?
-published: false
+published: true
 description: The EU AI Act's high-risk provisions activate today. They weren't written for autonomous AI agents. But your agents are subject to them anyway. Here's what you need to know, what you need to prove, and how credential-brokered enforcement bridges the governance gap.
 tags: ai, security, standards, devops
 cover_image: https://images.unsplash.com/photo-1585829365295-ab7cd400c167?w=1200&h=630&fit=crop
@@ -157,4 +157,7 @@ Ask your vendor: *Where are your agents' credentials right now?*
 
 ---
 
-*[Empire Labs Pty Ltd](https://www.empirelabs.com.au) — Security Division*
+Regards,
+Security Division
+Empire Labs
+[www.empirelabs.com.au](https://www.empirelabs.com.au)
