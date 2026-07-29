@@ -10,26 +10,26 @@
 
 ## P5A: Enterprise Deployment Pack
 
-**Owner:** Sovereign
-**Status:** 🔄 In Progress
+**Owner:** Sovereign + Porgie
+**Status:** ✅ Complete
 
 | Action | Owner | Status |
 |--------|-------|--------|
-| Docker Compose — gateway + CLI + scanner | Sovereign | 🔄 Building |
-| Kubernetes manifests (Deployment, Service, ConfigMap) | Sovereign | 🔄 Building |
-| Dockerfile for witnessos-compliance CLI | Sovereign | 🔄 Building |
-| Quickstart `docker compose up` walkthrough | Sovereign | ⏳ Pending |
+| Docker Compose — gateway + CLI + scanner | Sovereign | ✅ Done |
+| Kubernetes manifests (Deployment, Service, ConfigMap) | Sovereign | ✅ Done |
+| Dockerfile for witnessos-compliance CLI | Sovereign | ✅ Done |
+| Docker build + run verified | Porgie | ✅ Done — `docker build -t witnessos-compliance:0.1.0 .` | Porgie | ✅ Tested |
 
 ## P5B: Automated Compliance Reporting
 
-**Owner:** Porgie
-**Status:** ⏳ Pending
+| Status:** ✅ Complete
+| Commander:** Porgie
 
 | Action | Owner | Status |
 |--------|-------|--------|
-| Extend CLI with `compliance-report --format pdf` | Porgie | ⏳ Pending |
-| Add scheduled scan cron job option | Porgie | ⏳ Pending |
-| Export report as HTML dashboard | Porgie | ⏳ Pending |
+| Extend CLI with `compliance-report --format html/pdf` | Porgie | ✅ Done |
+| Add `scan --run` command to CLI | Porgie | ✅ Done |
+| Export HTML dashboard (dark-themed) for all 4 standards | Porgie | ✅ Done — verified with CliRunner |
 
 ## P5C: Design Partner Onboarding Kit
 
