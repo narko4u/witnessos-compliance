@@ -41,9 +41,10 @@ Built on the [WitnessOS](https://github.com/narko4u/witnessos) credential-broker
 |-------|-------|--------|------|
 | **Phase 1** | Foundation — NSA mapping, EU AI Act templates, CLI, positioning | ✅ Complete | Jul 28, 2026 |
 | **Phase 2** | Build & Deploy — interactive demo, receipt visualizer, blog, GitHub push | ✅ Complete | Jul 28, 2026 |
-| **Phase 3** | Commerce & Content — commerce demo, rogue agent video, landing page, compliance mapping | ✅ Complete | Jul 28, 2026 |
+| **Phase 3** | Commerce & Content — commerce demo, rogue agent video, landing page, compliance mapping, ACI/AIP packages | ✅ Complete | Jul 28, 2026 |
 | **Phase 4** | Revenue & Reach — OpenAI pipeline, lead capture, ACI docs, content pipeline, community | ✅ Complete | Jul 29, 2026 |
-| **Phase 5** | Scale & Enterprise — Docker Compose, k8s manifests, CI/CD, design partner kit | 🔄 In Progress | Jul 29, 2026 |
+| **Phase 5** | Scale & Enterprise — Docker Compose, k8s manifests, design partner kit | ✅ Complete | Jul 29, 2026 |
+| **Phase 6** | Ecosystem & Adoption — design partners, revenue ops, community launch, OpenAI pipeline | 📋 Planned | Target: Aug 2-7, 2026 |
 
 ## Quick Start
 
