@@ -1,3 +1,7 @@
+[build-system]
+requires = ["setuptools>=68.0"]
+build-backend = "setuptools.build_meta"
+
 [project]
 name = "witnessos-compliance"
 version = "0.1.0"
@@ -12,3 +16,7 @@ dependencies = [
 
 [project.scripts]
 witnessos-compliance = "witnessos_cli.main:cli"
+
+[tool.setuptools.packages.find]
+include = ["witnessos_cli", "witnessos_cli.*"]
+where = ["cli"]

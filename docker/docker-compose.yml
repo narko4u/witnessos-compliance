@@ -10,8 +10,6 @@
 # Reports are written to the host-mounted ./data/ directory.
 # =============================================================================
 
-version: "3.9"
-
 services:
   witnessos-cli:
     build:
