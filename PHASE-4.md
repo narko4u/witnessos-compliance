@@ -1,7 +1,7 @@
 # Phase 4 — Revenue & Reach (✅ Complete)
 
 **Gate:** Phase 3 complete (blog published, packages shipped, commerce demo live, video script drafted)
-**Commander:** Sovereign (interim) → Eddie (approval)
+**Commander:** Sovereign (interim) → CEO (approval)
 **Status:** ✅ Complete — Jul 29, 2026
 **Pushed to main:** ✅
 
@@ -31,7 +31,7 @@
 | Action | Owner | Status |
 |--------|-------|--------|
 | Live at narko4u.github.io/agent-interaction-specs | Porgie | ✅ Live |
-| Add Calendly or booking link to CTA | Sovereign | ⏳ Pending (needs Eddie) |
+| Add Calendly or booking link to CTA | Sovereign | ⏳ Pending (needs CEO) |
 | Add simple contact form (Netlify Forms / Formspree) | Sovereign | ✅ Lead capture page in docs/ |
 | Set up analytics | Sovereign | ⏳ Pending |
 
@@ -65,7 +65,7 @@
 | Compliance scanner built | Porgie | ✅ |
 | End-to-end QA: gateway → CLI → scanner → report | Sovereign | ✅ Verified |
 | Deployment guide (single-binary install) | Sovereign | ✅ Written |
-| Price discovery → GumRoad listing | Sovereign (with Eddie) | ⏳ Pending Eddie |
+| Price discovery → GumRoad listing | Sovereign (with CEO) | ⏳ Pending CEO |
 | Design partner outreach (cold email to 5 prospects) | EAB/Sovereign | ⏳ Pending |
 
 ## Track 6: X Community

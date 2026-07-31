@@ -23,7 +23,7 @@ Phases 1-5 built the product. Phase 6 makes it real — real users, real revenue
 |--------|-------|--------|
 | Identify 10 candidate companies (AI agent builders, compliance teams) | Sovereign | ✅ Done — 8 ranked candidates in `ecosystem/witnessos-design-partner-candidates.md` (CBA #1, Aigentsphere #2) |
 | Draft outreach email template (problem-aware, value-first) | Sovereign | ✅ Done — `ecosystem/design-partner-outreach.md` (378 lines, 3-tier sequence) |
-| Send cold emails to 5 prospects | EAB/Sovereign | ⏳ Blocked — needs Eddie green light + sender approval |
+| Send cold emails to 5 prospects | EAB/Sovereign | ⏳ Blocked — needs CEO green light + sender approval |
 | Schedule 3 intro calls | Sovereign | ⏳ Pending sends |
 | Create design partner agreement / NDA template | Sovereign | ✅ Done — `partner-kit/` (agreement, engagement model, onboarding checklist, technical integration guide) |
 
@@ -31,17 +31,17 @@ Phases 1-5 built the product. Phase 6 makes it real — real users, real revenue
 
 ## P6B: Revenue Operations (Days 1-5)
 
-**Owner:** Sovereign (+ Eddie for pricing)
+**Owner:** Sovereign (+ CEO for pricing)
 **Priority:** 🔴 High — directly measurable
 
 | Action | Owner | Status |
 |--------|-------|--------|
 | Price discovery: market research on agent governance tools | Sovereign | ✅ Done — `ecosystem/witnessos-revenue-ops-framework.md` (476 lines: tiered pricing $0/$95/$495/$24K+ yr, US/AUD strategy, 18-month projection) |
-| Create GumRoad listing with 3 tiers (Starter/Pro/Enterprise) | Sovereign (with Eddie) | ⏳ Blocked — needs Eddie's GumRoad account |
-| Set up Stripe payment link | Sovereign | ⏳ Blocked — needs Eddie |
+| Create GumRoad listing with 3 tiers (Starter/Pro/Enterprise) | Sovereign (with CEO) | ⏳ Blocked — needs CEO's GumRoad account |
+| Set up Stripe payment link | Sovereign | ⏳ Blocked — needs CEO |
 | First sale target | Sovereign | ⏳ Pending |
 
-**Pricing hypothesis (to validate with Eddie):**
+**Pricing hypothesis (to validate with CEO):**
 - **Starter:** $0 — CLI + scanner, open-source (community tier)
 - **Pro:** $99/mo — CLI + scanner + gateway + compliance reports
 - **Enterprise:** Contact — Dedicated gateway, k8s deployment, design partner support
@@ -113,5 +113,5 @@ Phases 1-5 built the product. Phase 6 makes it real — real users, real revenue
 - [x] Revenue ops framework — `ecosystem/witnessos-revenue-ops-framework.md`
 - [ ] X credits available (currently $0)
 - [ ] Landing page analytics configured
-- [ ] GumRoad account ready (needs Eddie)
-- [ ] Cold email sends approved (needs Eddie green light)
+- [ ] GumRoad account ready (needs CEO)
+- [ ] Cold email sends approved (needs CEO green light)

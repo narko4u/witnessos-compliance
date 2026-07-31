@@ -1,6 +1,6 @@
 # Design Partner Onboarding Checklist
 
-**Estimated timeline:** 2–4 weeks | **Questions:** partner-onboarding@witnessos.io
+**Estimated timeline:** 2–4 weeks | **Questions:** contact@empirelabs.com.au
 
 ---
 
@@ -17,7 +17,7 @@
 - [ ] Provision test environment (sandbox tenant)
 - [ ] Complete authentication setup (client credentials + webhook)
 - [ ] Run end-to-end connection test — data ingestion confirmed
-- [ ] Escalate any blockers to partner-eng@witnessos.io
+- [ ] Escalate any blockers to contact@empirelabs.com.au
 
 ## Phase 3 — Operational Review (Days 11–16)
 
@@ -36,4 +36,4 @@
 ---
 
 **All items must be checked before production access is granted.**  
-Need help? Contact us at **partner-onboarding@witnessos.io**.
+Need help? Contact us at **contact@empirelabs.com.au**.

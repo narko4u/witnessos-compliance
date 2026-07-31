@@ -16,7 +16,7 @@
 | **Jul 23 (Mid)** | OpenAI Instruction Received | OpenAI directed Empire Labs to submit via Contact Sales form at openai.com/contact-sales with prescribed keywords: _"technology partnership / security governance gateway pilot (NDA-ready)"_ | Clear submission pathway established |
 | **Jul 23 (PM)** | Full Proposal Sent | Comprehensive proposal package emailed to sales@openai.com with CC to the existing support thread (#11966723) | Proposal delivered; no automated or human acknowledgment received |
 | **Jul 24–30** | Silent Window | No response from OpenAI sales or support teams | **7+ days elapsed** since explicit OpenAI instructions were given |
-| **Today — Jul 30** | **BLOCKED** | Contact Sales form has **not** been submitted (pending action from Eddie) | Pipeline stalled; risk of opportunity decay |
+| **Today — Jul 30** | **BLOCKED** | Contact Sales form has **not** been submitted (pending action from CEO) | Pipeline stalled; risk of opportunity decay |
 
 ### Key Correspondence Summary
 
@@ -30,7 +30,7 @@
 
 ```
 State:     BLOCKED
-Blocker:   Contact Sales form not yet submitted (pending: Eddie)
+Blocker:   Contact Sales form not yet submitted (pending: CEO)
 Days idle: 7+ since OpenAI's last instruction
 Risk:      HIGH — OpenAI may deprioritise or close stale ticket #11966723
 ```
@@ -41,7 +41,7 @@ The pipeline has a single, actionable blocker: the Contact Sales form at [https:
 
 ## 3. Action Items
 
-### 3a. 🔴 CRITICAL — Eddie: Submit Contact Sales Form
+### 3a. 🔴 CRITICAL — CEO: Submit Contact Sales Form
 
 | Field | Value |
 |-------|-------|
@@ -113,7 +113,7 @@ Before sending any follow-up, verify the following:
 | OpenAI closes case #11966723 as stale/inactive | MEDIUM | HIGH — Lose the case reference, restart from scratch | Submit form + send follow-up email within 24 hours |
 | Proposal buried in sales@openai.com inbox | HIGH | HIGH — Proposal never reaches decision-maker | Form submission creates CRM record; follow-up email references both |
 | Opportunity window closes (OpenAI partnership bandwidth filled by competitor) | MEDIUM | CRITICAL — First-mover advantage lost | Act now; follow-up with LinkedIn outreach by Day 5 if silent |
-| Internal momentum lost (Eddie deprioritises) | MEDIUM | HIGH — Pipeline dies entirely | Escalate internally; this document serves as the accountability record |
+| Internal momentum lost (CEO deprioritises) | MEDIUM | HIGH — Pipeline dies entirely | Escalate internally; this document serves as the accountability record |
 | OpenAI changes Contact Sales form/process | LOW | MEDIUM — Need to rediscover pathway | Submit now while current form/knowledge is valid |
 
 ### Escalation Triggers

@@ -121,7 +121,7 @@ The commonly cited "78% of enterprise AI teams use MCP in production" is **unsou
 
 ---
 
-## Actionable Intelligence for Sovereign & Eddie
+## Actionable Intelligence for the leadership team
 
 1. **Read the NSA guidance** — it's the best third-party validation we could ask for. Link: https://media.defense.gov/2026/Jun/02/2003943289/-1/-1/0/CSI_MCP_SECURITY.PDF
 2. **Position against WitnessAI** — we need to clarify name differentiation. "WitnessOS is not WitnessAI. We're credential-brokered governance, not network-layer monitoring."

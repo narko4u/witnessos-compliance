@@ -47,7 +47,7 @@ The AI agent governance space has an enormous gap between capability and regulat
 - NIST's acknowledgement that agent-specific standards won't arrive for years creates a "buy vs. wait" decision for enterprises
 - Nobody has solved the identity/authorization problem for agents — WitnessOS Gateway could be positioned as the solution
 
-### Next Steps for Sovereign/Eddie
+### Next Steps for Sovereign/CEO
 
 1. Publish a blog post titled "EU AI Act Enforcement Starts August 2. Who's Governing Your Agents?" — timed for the enforcement day
 2. Position WitnessOS as "the bridge between now and the NIST Agent Standards" (which won't arrive until 2027+)
