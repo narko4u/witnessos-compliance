@@ -1,7 +1,7 @@
 # WitnessOS Compliance Pack
 
 **Regulatory readiness for autonomous AI agents.**
-Built on the [WitnessOS](https://github.com/narko4u/witnessos) credential-brokered enforcement gateway ([private repo](https://github.com/narko4u/witnessos-gateway)).
+Built on the [WitnessOS](https://github.com/narko4u/witnessos) enforcement platform.
 
 ## What This Repo Contains
 
@@ -17,11 +17,12 @@ Built on the [WitnessOS](https://github.com/narko4u/witnessos) credential-broker
 | `tools/` | Compliance scanner — fleet-wide agent governance audit |
 | `docker/` | Enterprise deployment: Dockerfile + docker-compose.yml |
 | `k8s/` | Kubernetes manifests for production deployment |
+| `partner-kit/` | Design partner program — agreement, engagement model, onboarding checklist, technical guide |
+| `ecosystem/` | Phase 6 launch — outreach sequence, revenue ops framework, community launch plan, OpenAI pipeline |
 
 ## Linked Repositories
 
 - [`witnessos`](https://github.com/narko4u/witnessos) — Core WitnessOS runtime governance platform (public)
-- [`witnessos-gateway`](https://github.com/narko4u/witnessos-gateway) — Proprietary credential-brokered enforcement gateway (private)
 - [`witnessos-alpha`](https://github.com/narko4u/witnessos-alpha) — Alpha preview (public)
 - [`witnessos-rogue-agent-audit`](https://github.com/narko4u/witnessos-rogue-agent-audit) — Agent discovery tool (public)
 - [`eu-ai-act-compliance-grade`](https://github.com/narko4u/eu-ai-act-compliance-grade) — Self-assessment tool (public)
@@ -44,7 +45,7 @@ Built on the [WitnessOS](https://github.com/narko4u/witnessos) credential-broker
 | **Phase 3** | Commerce & Content — commerce demo, rogue agent video, landing page, compliance mapping, ACI/AIP packages | ✅ Complete | Jul 28, 2026 |
 | **Phase 4** | Revenue & Reach — OpenAI pipeline, lead capture, ACI docs, content pipeline, community | ✅ Complete | Jul 29, 2026 |
 | **Phase 5** | Scale & Enterprise — Docker Compose, k8s manifests, design partner kit | ✅ Complete | Jul 29, 2026 |
-| **Phase 6** | Ecosystem & Adoption — design partners, revenue ops, community launch, OpenAI pipeline | 📋 Planned | Target: Aug 2-7, 2026 |
+| **Phase 6** | Ecosystem & Adoption — design partners, revenue ops, community launch, OpenAI pipeline | 🚀 In Progress | Started Jul 31, 2026 |
 
 ## Quick Start
 
