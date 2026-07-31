@@ -2,7 +2,7 @@
 
 > For design partners connecting autonomous agents to the WitnessOS gateway.
 
-**Gateway endpoint:** `https://gateway.witnessos.ai:8443`
+**Gateway endpoint:** `https://<gateway-host>:8443`
 **Protocol:** mTLS over HTTP/2 (FastAPI)
 
 ---
@@ -24,7 +24,7 @@ The WitnessOS gateway enforces a zero-trust execution model for agent actions. Y
 
 - Python 3.11+
 - API key (issued to your partner account)
-- mTLS client certificate (`.crt` + `.key`) from the [partner portal](https://partners.witnessos.ai)
+- mTLS client certificate (`.crt` + `.key`) from the [partner portal](https://<partner-portal-url>)
 - `witnessos` CLI (`pip install witnessos-cli`)
 
 ---
@@ -34,7 +34,7 @@ The WitnessOS gateway enforces a zero-trust execution model for agent actions. Y
 Post a signed action envelope to the `/api/action` endpoint:
 
 ```bash
-curl -X POST https://gateway.witnessos.ai:8443/api/action \
+curl -X POST https://<gateway-host>:8443/api/action \
   --cert /path/to/client.crt \
   --key /path/to/client.key \
   -H "X-API-Key: $WITNESS_API_KEY" \
@@ -57,7 +57,7 @@ curl -X POST https://gateway.witnessos.ai:8443/api/action \
 {
   "status": "pending_approval",
   "receipt": "E1-vQ7...",
-  "approval_url": "https://approval.witnessos.ai/txn/vQ7..."
+  "approval_url": "https://<approval-host>/txn/vQ7..."
 }
 ```
 
@@ -75,7 +75,7 @@ The receipt level indicates how far the action progressed:
 ```python
 import requests
 
-GATEWAY = "https://gateway.witnessos.ai:8443"
+GATEWAY = "https://<gateway-host>:8443"
 CERT = ("/path/to/client.crt", "/path/to/client.key")
 HEADERS = {"X-API-Key": "your-api-key"}
 
@@ -120,7 +120,7 @@ After an action executes, verify its integrity with the CLI:
 
 ```bash
 witnessos verify receipt E2-vQ7... \
-  --gateway https://gateway.witnessos.ai:8443 \
+  --gateway https://<gateway-host>:8443 \
   --cert client.crt \
   --key client.key
 ```
@@ -142,7 +142,7 @@ The tool fetches the Merkle proof from the Event Store and checks inclusion in t
 
 ## Next Steps
 
-1. Register your agent in the [partner portal](https://partners.witnessos.ai)
+1. Register your agent in the [partner portal](https://<partner-portal-url>)
 2. Download your mTLS credentials
 3. Set `WITNESS_API_KEY` in your deployment environment
 4. Try the Gmail sandbox connector first
